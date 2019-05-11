@@ -7,6 +7,7 @@
 
 
 enum tokens{
+    VOID,
     INT,
     BYTE,
     B,

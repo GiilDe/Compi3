@@ -3,21 +3,31 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include "source.hpp"
+    #include "parser_stuff.hpp"
+    #include <vector>
+    #include <stack>
+    #include <unordered_map>
+    #include <string>
 
     #define YYERROR_VERBOSE 1
-    #define vector<ScopeTable> TablesStack
-    #define unordered_map<string, symbol_data> ScopeTable
+    #define ScopeTable unordered_map<string, var_data>
+    #define tokens yytokentype
+    #define FuncTable unordered_map<string, func_data>
 
     using namespace std;
 
-    TablesStack symbol_tables;
+    vector<ScopeTable> scopes_tables;
     stack<int> offsets_stack;
+    FuncTable func_table;
+
     int main();
     int yyerror(const char* message);
-    void add_var(tokens type, string name);
-    void add_func(vector<tokens> param_types, tokens ret_type, string name);
-    bool contains_var(string name);
-    void new_scope_table();
+
+    bool add_var(tokens type, string name);
+    bool add_func(vector<tokens> param_types, tokens ret_type, string name);
+    bool contains_var(string& name);
+    void new_scope();
+    void exit_scope();
 
     extern int yylex();
 %}
@@ -106,6 +116,13 @@ Closed_statement: Simple_statement
 
 Simple_statement: LBRACE Statements RBRACE
                 | Type ID SC
+                { stack_data* conv1 = static_cast<stack_data*>($1);
+                  stack_data* conv2 = static_cast<stack_data*>($2);
+                  if(!add_var(conv1->type, conv2->name)){
+                        yyerror("variable already defined");
+                  }
+                }
+
                 | Type ID ASSIGN Exp SC
                 | ID ASSIGN Exp SC
                 | Call SC
@@ -145,17 +162,49 @@ Exp	:	LPAREN Exp RPAREN
 
 %%
 
-void add_var(tokens type, string name){
-    int offset = offsets_stack.top();
-    symbol_data s(type, offset);
-    ScopeTable& t = symbol_tables.top();
-    t.
+void exit_scope(){
+    offsets_stack.pop();
+    scopes_tables.pop_back();
 }
 
+void new_scope(){
+    offsets_stack.push(offsets_stack.top());
+    scopes_tables.push_back(ScopeTable());
+}
+
+bool contains_var(string& name){
+    for(ScopeTable& t : scopes_tables){
+        if(t.find(name) != t.end()){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool add_var(tokens type, string name){
+    if(contains_var(name)){
+        return false;
+    }
+    int& offset = offsets_stack.top();
+    var_data sd = {type, offset};
+    ScopeTable& t = scopes_tables.back();
+    t.insert({name, sd});
+    offset++;
+    return true;
+}
+
+bool add_func(vector<tokens> param_types, tokens ret_type, string name){
+    func_data fd = {param_types, ret_type};
+    if(func_table.find(name) != func_table.end()){
+        return false;
+    }
+    func_table.insert({name, fd});
+    return true;
+}
 
 int yyerror(const char* message){
 	cout << "Parse error: " << message << endl;
-	exit(0);
+	exit(1);
 }
 
 int main(){

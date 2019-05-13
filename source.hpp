@@ -1,47 +1,33 @@
 //
-// Created by Gilad on 10-May-19.
+// Created by Gilad on 13-May-19.
 //
 
 #ifndef COMPI3_SOURCE_HPP
 #define COMPI3_SOURCE_HPP
 
+#include <string>
 
-enum tokens{
-    VOID,
-    INT,
-    BYTE,
-    B,
-    BOOL,
-    AND,
-    OR,
-    NOT,
-    TRUE,
-    FALSE,
-    RETURN,
-    IF,
-    ELSE,
-    WHILE,
-    BREAK,
-    CONTINUE,
-    PRECOND,
-    SC,
-    COMMA,
-    LPAREN,
-    RPAREN,
-    LBRACE,
-    RBRACE,
-    ASSIGN,
-    RELOP,
-    BINOP,
-    ID,
-    NUM,
-    STRING
+#define tokens yytokentype
+
+using namespace std;
+
+
+class dummy{
 };
 
-struct symbol_data{
+#define YYSTYPE dummy*
+#include "cmake-build-debug-cygwin/parser.tab.hpp"
+
+class stack_data : public dummy{
+public:
     tokens type;
-    int offset;
+    string name;
+    stack_data(tokens t, const char* c){
+        type = t;
+        name = string(c);
+    }
 };
+
 
 
 

@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.tab.hpp"
+#include "source.hpp"
+#include "cmake-build-debug-cygwin/parser.tab.hpp"
 
 #define TAB   0x09
 #define LF    0x0A
@@ -23,7 +24,7 @@ ws                              ([\r\n\t ])
 
 %%
 
-void                            return VOID;
+void                            { yylval = new stack_data(VOID, ""); return VOID; }
 int                             return INT;
 byte                            return BYTE;
 b                               return B;
@@ -49,7 +50,7 @@ continue                        return CONTINUE;
 =                               return ASSIGN;
 ==|!=|<|>|<=|>=                 return RELOP;
 \+|\-|\*|\/                     return BINOP;
-[a-zA-Z][a-zA-Z0-9]*            return ID;
+[a-zA-Z][a-zA-Z0-9]*            { yylval = new stack_data(VOID, yytext); return ID; }
 0|[1-9][0-9]*                   return NUM;
 \"([^\n\r\"\\]|\\[rnt"\\])+\"   return STRING;
 

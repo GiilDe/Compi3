@@ -71,7 +71,7 @@ Funcs	:	/*epsilon*/
 		|	FuncDecl Funcs
 	    ;
 
-FuncDecl	:	RetType ID LPAREN Formals RPAREN PreConditions LBRACE Statements RBRACE
+FuncDecl	:	RetType ID LPAREN Formals RPAREN PreConditions LBRACE {new_scope();} Statements RBRACE
 	        ;
 
 RetType	:	Type
@@ -114,15 +114,15 @@ Closed_statement: Simple_statement
                 | WHILE LPAREN Exp RPAREN Closed_statement
                 ;
 
-Simple_statement: LBRACE Statements RBRACE
+Simple_statement: LBRACE {new_scope();} Statements RBRACE
                 | Type ID SC
-                { stack_data* conv1 = static_cast<stack_data*>($1);
+                {
+                  stack_data* conv1 = static_cast<stack_data*>($1);
                   stack_data* conv2 = static_cast<stack_data*>($2);
                   if(!add_var(conv1->type, conv2->name)){
                         yyerror("variable already defined");
                   }
                 }
-
                 | Type ID ASSIGN Exp SC
                 | ID ASSIGN Exp SC
                 | Call SC
@@ -182,6 +182,7 @@ bool contains_var(string& name){
 }
 
 bool add_var(tokens type, string name){
+    raise(SIGABRT);
     if(contains_var(name)){
         return false;
     }
@@ -208,6 +209,8 @@ int yyerror(const char* message){
 }
 
 int main(){
+    raise(SIGABRT);
+    offsets_stack.push(0);
     #ifdef YYDEBUG
         yydebug = 1;
     #endif

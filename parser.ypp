@@ -3,7 +3,6 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include "source.hpp"
-    #include "parser_stuff.hpp"
     #include <vector>
     #include <stack>
     #include <unordered_map>
@@ -15,6 +14,16 @@
     #define FuncTable unordered_map<string, func_data>
 
     using namespace std;
+
+    struct var_data{
+        tokens type;
+        int offset;
+    };
+
+    struct func_data{
+        vector<tokens> param_types;
+        tokens ret_type;
+    };
 
     vector<ScopeTable> scopes_tables;
     stack<int> offsets_stack;
@@ -117,13 +126,16 @@ Closed_statement: Simple_statement
 Simple_statement: LBRACE {new_scope();} Statements RBRACE
                 | Type ID SC
                 {
-                  stack_data* conv1 = static_cast<stack_data*>($1);
-                  stack_data* conv2 = static_cast<stack_data*>($2);
-                  if(!add_var(conv1->type, conv2->name)){
+                  if(!add_var(static_cast<tokens>($1.type), $2.name)){
                         yyerror("variable already defined");
                   }
                 }
                 | Type ID ASSIGN Exp SC
+                {
+                  if(!add_var(static_cast<tokens>($1.type), $2.name)){
+                        yyerror("variable already defined");
+                  }
+                }
                 | ID ASSIGN Exp SC
                 | Call SC
                 | RETURN SC
@@ -182,7 +194,6 @@ bool contains_var(string& name){
 }
 
 bool add_var(tokens type, string name){
-    raise(SIGABRT);
     if(contains_var(name)){
         return false;
     }
@@ -209,7 +220,6 @@ int yyerror(const char* message){
 }
 
 int main(){
-    raise(SIGABRT);
     offsets_stack.push(0);
     #ifdef YYDEBUG
         yydebug = 1;

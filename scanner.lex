@@ -24,7 +24,7 @@ ws                              ([\r\n\t ])
 
 %%
 
-void                            { yylval = new stack_data(VOID, ""); return VOID; }
+void                            {yylval.type = static_cast<int>(VOID); return VOID;}
 int                             return INT;
 byte                            return BYTE;
 b                               return B;
@@ -50,7 +50,7 @@ continue                        return CONTINUE;
 =                               return ASSIGN;
 ==|!=|<|>|<=|>=                 return RELOP;
 \+|\-|\*|\/                     return BINOP;
-[a-zA-Z][a-zA-Z0-9]*            { yylval = new stack_data(VOID, yytext); return ID; }
+[a-zA-Z][a-zA-Z0-9]*            {yylval.name = yytext; return ID;}
 0|[1-9][0-9]*                   return NUM;
 \"([^\n\r\"\\]|\\[rnt"\\])+\"   return STRING;
 

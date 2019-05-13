@@ -12,20 +12,11 @@
 using namespace std;
 
 
-class dummy{
-};
+#define YYSTYPE stack_data
 
-#define YYSTYPE dummy*
-#include "cmake-build-debug-cygwin/parser.tab.hpp"
-
-class stack_data : public dummy{
-public:
-    tokens type;
+struct stack_data{
+    int type;
     string name;
-    stack_data(tokens t, const char* c){
-        type = t;
-        name = string(c);
-    }
 };
 
 

@@ -2,14 +2,22 @@
     #include <iostream>
     #include <stdlib.h>
     #include <stdio.h>
+    #include "source.hpp"
 
     #define YYERROR_VERBOSE 1
-
+    #define vector<ScopeTable> TablesStack
+    #define unordered_map<string, symbol_data> ScopeTable
 
     using namespace std;
 
+    TablesStack symbol_tables;
+    stack<int> offsets_stack;
     int main();
     int yyerror(const char* message);
+    void add_var(tokens type, string name);
+    void add_func(vector<tokens> param_types, tokens ret_type, string name);
+    bool contains_var(string name);
+    void new_scope_table();
 
     extern int yylex();
 %}
@@ -136,6 +144,14 @@ Exp	:	LPAREN Exp RPAREN
 	;
 
 %%
+
+void add_var(tokens type, string name){
+    int offset = offsets_stack.top();
+    symbol_data s(type, offset);
+    ScopeTable& t = symbol_tables.top();
+    t.
+}
+
 
 int yyerror(const char* message){
 	cout << "Parse error: " << message << endl;

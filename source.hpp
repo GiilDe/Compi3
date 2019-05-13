@@ -38,4 +38,12 @@ enum tokens{
     STRING
 };
 
+struct symbol_data{
+    tokens type;
+    int offset;
+};
+
+
+
+
 #endif //COMPI3_SOURCE_HPP

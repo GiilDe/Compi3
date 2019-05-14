@@ -7,18 +7,21 @@
 
 #include <string>
 
-#define tokens yytokentype
-
 using namespace std;
 
+class stack_data{};
 
-#define YYSTYPE stack_data
-
-struct stack_data{
-    int type;
-    string name;
+class Id : public stack_data{
+public:
+    string id;
 };
 
+class Type : public stack_data{
+public:
+    int type;
+};
+
+#define YYSTYPE stack_data*
 
 
 

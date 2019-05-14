@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "source.hpp"
-#include "cmake-build-debug-cygwin/parser.tab.hpp"giti
+#include "cmake-build-debug-cygwin/parser.tab.hpp"
+
 
 static void error(char * c_name) {
   printf("Error %s\n", c_name);
@@ -19,8 +20,15 @@ ws                              ([\r\n\t ])
 
 %%
 
-void                            {yylval.type = static_cast<int>(VOID); return VOID;}
-int                             return INT;
+
+void                            {
+                                static_cast<Type*>(yylval)->type = static_cast<int>(VOID);
+                                return VOID;
+                                }
+int                             {
+                                static_cast<Type*>(yylval)->type = static_cast<int>(INT);
+                                return INT;
+                                }
 byte                            return BYTE;
 b                               return B;
 bool                            return BOOL;
@@ -45,7 +53,10 @@ continue                        return CONTINUE;
 =                               return ASSIGN;
 ==|!=|<|>|<=|>=                 return RELOP;
 \+|\-|\*|\/                     return BINOP;
-[a-zA-Z][a-zA-Z0-9]*            {yylval.name = yytext; return ID;}
+[a-zA-Z][a-zA-Z0-9]*            {
+                                static_cast<Id*>(yylval)->id = yytext;
+                                return ID;
+                                }
 0|[1-9][0-9]*                   return NUM;
 \"([^\n\r\"\\]|\\[rnt"\\])+\"   return STRING;
 

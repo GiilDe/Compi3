@@ -3,14 +3,15 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include "source.hpp"
+    #include "cmake-build-debug-cygwin/parser.tab.hpp"
     #include <vector>
     #include <stack>
     #include <unordered_map>
     #include <string>
+    #define tokens yytokentype
 
     #define YYERROR_VERBOSE 1
     #define ScopeTable unordered_map<string, var_data>
-    #define tokens yytokentype
     #define FuncTable unordered_map<string, func_data>
 
     using namespace std;
@@ -80,11 +81,23 @@ Funcs	:	/*epsilon*/
 		|	FuncDecl Funcs
 	    ;
 
-FuncDecl	:	RetType ID LPAREN Formals RPAREN PreConditions LBRACE {new_scope();} Statements RBRACE
+FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE Statements RBRACE
+            {
+            tokens type = static_cast<tokens>(static_cast<Type*>($1)->type);
+            string id = static_cast<Id*>($1)->id;
+            }
 	        ;
 
 RetType	:	Type
+            {
+            $$ = new Type();
+            static_cast<Type*>($$)->type = static_cast<int>(VOID);
+            }
 		|	VOID
+		    {
+		    $$ = new Type();
+		    static_cast<Type*>($$)->type = static_cast<int>(VOID);
+		    }
 	    ;
 
 Formals	:	/*epsilon*/
@@ -126,13 +139,17 @@ Closed_statement: Simple_statement
 Simple_statement: LBRACE {new_scope();} Statements RBRACE
                 | Type ID SC
                 {
-                  if(!add_var(static_cast<tokens>($1.type), $2.name)){
+                  Type* conv1 = static_cast<Type*>($1);
+                  Id* conv2 = static_cast<Id*>($2);
+                  if(!add_var(static_cast<tokens>(conv1->type), conv2->id)){
                         yyerror("variable already defined");
                   }
                 }
                 | Type ID ASSIGN Exp SC
                 {
-                  if(!add_var(static_cast<tokens>($1.type), $2.name)){
+                  Type* conv1 = static_cast<Type*>($1);
+                  Id* conv2 = static_cast<Id*>($2);
+                  if(!add_var(static_cast<tokens>(conv1->type), conv2->id)){
                         yyerror("variable already defined");
                   }
                 }
@@ -193,15 +210,19 @@ bool contains_var(string& name){
     return false;
 }
 
-bool add_var(tokens type, string name){
-    if(contains_var(name)){
+bool add_var(tokens type, string name, bool func_var){
+    if(contains_var(name) || func_table.find(name) != func_table.end()){
         return false;
     }
-    int& offset = offsets_stack.top();
+    if(!func_var)
+        int& offset = offsets_stack.top();
+    else
+        int offset = offsets_stack.top()-1;
     var_data sd = {type, offset};
     ScopeTable& t = scopes_tables.back();
     t.insert({name, sd});
-    offset++;
+    if(!func_var)
+        offset++;
     return true;
 }
 

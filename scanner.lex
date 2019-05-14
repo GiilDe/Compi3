@@ -3,12 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "source.hpp"
-#include "cmake-build-debug-cygwin/parser.tab.hpp"
-
-#define TAB   0x09
-#define LF    0x0A
-#define CR    0x0D
-
+#include "cmake-build-debug-cygwin/parser.tab.hpp"giti
 
 static void error(char * c_name) {
   printf("Error %s\n", c_name);

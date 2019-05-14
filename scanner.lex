@@ -22,10 +22,12 @@ ws                              ([\r\n\t ])
 
 
 void                            {
+                                yylval = new Type();
                                 static_cast<Type*>(yylval)->type = static_cast<int>(VOID);
                                 return VOID;
                                 }
 int                             {
+                                yylval = new Type();
                                 static_cast<Type*>(yylval)->type = static_cast<int>(INT);
                                 return INT;
                                 }
@@ -54,6 +56,7 @@ continue                        return CONTINUE;
 ==|!=|<|>|<=|>=                 return RELOP;
 \+|\-|\*|\/                     return BINOP;
 [a-zA-Z][a-zA-Z0-9]*            {
+                                yylval = new Id();
                                 static_cast<Id*>(yylval)->id = yytext;
                                 return ID;
                                 }

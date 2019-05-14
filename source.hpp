@@ -6,6 +6,8 @@
 #define COMPI3_SOURCE_HPP
 
 #include <string>
+#include <vector>
+
 
 using namespace std;
 
@@ -19,6 +21,11 @@ public:
 class Type : public stack_data{
 public:
     int type;
+};
+
+class ParamsList : public stack_data{
+public:
+    vector<int> params;
 };
 
 #define YYSTYPE stack_data*

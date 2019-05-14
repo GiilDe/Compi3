@@ -22,7 +22,7 @@
     };
 
     struct func_data{
-        vector<tokens> param_types;
+        vector<int> param_types;
         tokens ret_type;
     };
 
@@ -33,8 +33,9 @@
     int main();
     int yyerror(const char* message);
 
-    bool add_var(tokens type, string name);
-    bool add_func(vector<tokens> param_types, tokens ret_type, string name);
+    int func_param_offset;
+    bool add_var(stack_data* type_class, stack_data* id_class, bool func_var);
+    bool add_func(vector<int> param_types, tokens ret_type, string name);
     bool contains_var(string& name);
     void new_scope();
     void exit_scope();
@@ -83,15 +84,18 @@ Funcs	:	/*epsilon*/
 
 FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE Statements RBRACE
             {
-            tokens type = static_cast<tokens>(static_cast<Type*>($1)->type);
-            string id = static_cast<Id*>($1)->id;
+            tokens ret_type = static_cast<tokens>(static_cast<Type*>($1)->type);
+            string id = static_cast<Id*>($2)->id;
+            ParamsList* l = static_cast<ParamsList*>($5);
+            add_func(l->params, ret_type, id);
             }
 	        ;
 
 RetType	:	Type
             {
             $$ = new Type();
-            static_cast<Type*>($$)->type = static_cast<int>(VOID);
+            Type* t = static_cast<Type*>($1);
+            static_cast<Type*>($$)->type = static_cast<int>(t->type);
             }
 		|	VOID
 		    {
@@ -101,15 +105,43 @@ RetType	:	Type
 	    ;
 
 Formals	:	/*epsilon*/
+        {
+        $$ = new ParamsList();
+        }
 		|	FormalsList
+		{
+		$$ = new ParamsList();
+        vector<int>& params = static_cast<ParamsList*>($$)->params;
+        vector<int>& params_other = static_cast<ParamsList*>($1)->params;
+        params = params_other;
+		}
 	    ;
 
 FormalsList	:	FormalDecl
-			|	FormalDecl COMMA FormalsList ;
+            {
+            $$ = new ParamsList();
+            Type* t = static_cast<Type*>($1);
+            static_cast<ParamsList*>($$)->params.push_back(t->type);
+            }
+			|	FormalDecl COMMA FormalsList
+			{
+			$$ = new ParamsList();
+            vector<int>& params = static_cast<ParamsList*>($$)->params;
+            vector<int>& params_other = static_cast<ParamsList*>($3)->params;
+            params.push_back(static_cast<Type*>($1)->type);
+			params.insert(params.end(), params_other.begin(), params_other.end());
+			}
+			;
 
 FormalDecl	:	Type ID
-	        ;
-
+            {
+              if(!add_var($1, $2, true)){
+                    yyerror("variable already defined");
+              }
+              $$ = new Type();
+              static_cast<Type*>($$)->type = static_cast<Type*>($1)->type;
+	        }
+            ;
 PreConditions	:	/*epsilon*/
 				|	PreConditions PreCondition
 	            ;
@@ -139,17 +171,13 @@ Closed_statement: Simple_statement
 Simple_statement: LBRACE {new_scope();} Statements RBRACE
                 | Type ID SC
                 {
-                  Type* conv1 = static_cast<Type*>($1);
-                  Id* conv2 = static_cast<Id*>($2);
-                  if(!add_var(static_cast<tokens>(conv1->type), conv2->id)){
+                  if(!add_var($1, $2, false)){
                         yyerror("variable already defined");
                   }
                 }
                 | Type ID ASSIGN Exp SC
                 {
-                  Type* conv1 = static_cast<Type*>($1);
-                  Id* conv2 = static_cast<Id*>($2);
-                  if(!add_var(static_cast<tokens>(conv1->type), conv2->id)){
+                  if(!add_var($1, $2, false)){
                         yyerror("variable already defined");
                   }
                 }
@@ -197,6 +225,7 @@ void exit_scope(){
 }
 
 void new_scope(){
+    func_param_offset = -1;
     offsets_stack.push(offsets_stack.top());
     scopes_tables.push_back(ScopeTable());
 }
@@ -210,23 +239,32 @@ bool contains_var(string& name){
     return false;
 }
 
-bool add_var(tokens type, string name, bool func_var){
+bool add_var(stack_data* type_class, stack_data* id_class, bool func_var){
+    Type* conv1 = static_cast<Type*>(type_class);
+    Id* conv2 = static_cast<Id*>(id_class);
+
+    tokens type = static_cast<tokens>(conv1->type);
+    string name = conv2->id;
+
     if(contains_var(name) || func_table.find(name) != func_table.end()){
         return false;
     }
-    if(!func_var)
-        int& offset = offsets_stack.top();
+    int* offset;
+    if(func_var)
+        offset = &func_param_offset;
     else
-        int offset = offsets_stack.top()-1;
-    var_data sd = {type, offset};
+        offset = &offsets_stack.top();
+    var_data sd = {type, *offset};
     ScopeTable& t = scopes_tables.back();
     t.insert({name, sd});
-    if(!func_var)
-        offset++;
+    if(func_var)
+        (*offset)--;
+    else
+        (*offset)++;
     return true;
 }
 
-bool add_func(vector<tokens> param_types, tokens ret_type, string name){
+bool add_func(vector<int> param_types, tokens ret_type, string name){
     func_data fd = {param_types, ret_type};
     if(func_table.find(name) != func_table.end()){
         return false;
@@ -237,10 +275,11 @@ bool add_func(vector<tokens> param_types, tokens ret_type, string name){
 
 int yyerror(const char* message){
 	cout << "Parse error: " << message << endl;
-	exit(1);
+	exit(5);
 }
 
 int main(){
+    func_param_offset = -1;
     offsets_stack.push(0);
     #ifdef YYDEBUG
         yydebug = 1;

@@ -11,26 +11,31 @@
 
 using namespace std;
 
-class stack_data{};
+class stack_data {
+public:
+    virtual ~stack_data() = default;
+};
 
-class Id : public stack_data{
+class Id : public stack_data {
 public:
     string id;
+
+    Id(const string &id) : id(id) {}
 };
 
-class Type : public stack_data{
+class Type : public stack_data {
 public:
     int type;
+
+    Type(int type) : type(type) {}
 };
 
-class ParamsList : public stack_data{
+class ParamsList : public stack_data {
 public:
     vector<int> params;
 };
 
 #define YYSTYPE stack_data*
-
-
 
 
 #endif //COMPI3_SOURCE_HPP

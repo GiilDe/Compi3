@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "output.hpp"
 #include "source.hpp"
-#include "cmake-build-debug-cygwin/parser.tab.hpp"
+#include "cmake-build-debug/parser.tab.hpp"
 
+using namespace output;
 
 static void error(char * c_name) {
   printf("Error %s\n", c_name);
@@ -22,15 +24,10 @@ ws                              ([\r\n\t ])
 
 
 void                            {
-                                yylval = new Type();
-                                static_cast<Type*>(yylval)->type = static_cast<int>(VOID);
-                                return VOID;
+                                    yylval = new Type(VOID);
+                                    return VOID;
                                 }
-int                             {
-                                yylval = new Type();
-                                static_cast<Type*>(yylval)->type = static_cast<int>(INT);
-                                return INT;
-                                }
+int                             return INT;
 byte                            return BYTE;
 b                               return B;
 bool                            return BOOL;
@@ -56,17 +53,19 @@ continue                        return CONTINUE;
 ==|!=|<|>|<=|>=                 return RELOP;
 \+|\-|\*|\/                     return BINOP;
 [a-zA-Z][a-zA-Z0-9]*            {
-                                yylval = new Id();
-                                static_cast<Id*>(yylval)->id = yytext;
-                                return ID;
+                                    yylval = new Id(yytext);
+                                    return ID;
                                 }
 0|[1-9][0-9]*                   return NUM;
-\"([^\n\r\"\\]|\\[rnt"\\])+\"   return STRING;
+\"([^\n\r\"\\]|\\[rnt"\\])+\"   {
+                                    yylval = new Type(STRING);
+                                    return STRING;
+                                }
 
 \/\/[^\r\n]*[\r|\n|\r\n]?       ;
 {ws}                            ;
 
-.                               error(yytext);
+.                               errorLex(yylineno);
 
 %%
 

@@ -1,46 +1,5 @@
 %{
-    #include <iostream>
-    #include <stdlib.h>
-    #include <stdio.h>
-    #include "source.hpp"
-    #include "cmake-build-debug-cygwin/parser.tab.hpp"
-    #include <vector>
-    #include <stack>
-    #include <unordered_map>
-    #include <string>
-    #define tokens yytokentype
-
-    #define YYERROR_VERBOSE 1
-    #define ScopeTable unordered_map<string, var_data>
-    #define FuncTable unordered_map<string, func_data>
-
-    using namespace std;
-
-    struct var_data{
-        tokens type;
-        int offset;
-    };
-
-    struct func_data{
-        vector<int> param_types;
-        tokens ret_type;
-    };
-
-    vector<ScopeTable> scopes_tables;
-    stack<int> offsets_stack;
-    FuncTable func_table;
-
-    int main();
-    int yyerror(const char* message);
-
-    int func_param_offset;
-    bool add_var(stack_data* type_class, stack_data* id_class, bool func_var);
-    bool add_func(vector<int> param_types, tokens ret_type, string name);
-    bool contains_var(string& name);
-    void new_scope();
-    void exit_scope();
-
-    extern int yylex();
+    #include "parser.h"
 %}
 
 %token            VOID
@@ -76,6 +35,7 @@
 %%
 
 Program	:	Funcs
+        { verifyMainFunction(); }
         ;
 
 Funcs	:	/*epsilon*/
@@ -85,6 +45,8 @@ Funcs	:	/*epsilon*/
 FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE Statements RBRACE
             {
             tokens ret_type = static_cast<tokens>(static_cast<Type*>($1)->type);
+            // tokens actual_ret_type = static_cast<tokens>(static_cast<Type*>($8)->type)
+
             string id = static_cast<Id*>($2)->id;
             ParamsList* l = static_cast<ParamsList*>($5);
             add_func(l->params, ret_type, id);
@@ -92,16 +54,10 @@ FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE 
 	        ;
 
 RetType	:	Type
-            {
-            $$ = new Type();
-            Type* t = static_cast<Type*>($1);
-            static_cast<Type*>($$)->type = static_cast<int>(t->type);
-            }
+            { $$ = new Type(static_cast<Type*>($1)->type); }
+
 		|	VOID
-		    {
-		    $$ = new Type();
-		    static_cast<Type*>($$)->type = static_cast<int>(VOID);
-		    }
+		    { $$ = new Type(VOID); }
 	    ;
 
 Formals	:	/*epsilon*/
@@ -135,11 +91,8 @@ FormalsList	:	FormalDecl
 
 FormalDecl	:	Type ID
             {
-              if(!add_var($1, $2, true)){
-                    yyerror("variable already defined");
-              }
-              $$ = new Type();
-              static_cast<Type*>($$)->type = static_cast<Type*>($1)->type;
+                tryAddVariable($1, $2, true);
+                $$ = new Type(static_cast<Type*>($1)->type);
 	        }
             ;
 PreConditions	:	/*epsilon*/
@@ -147,6 +100,7 @@ PreConditions	:	/*epsilon*/
 	            ;
 
 PreCondition	:	PRECOND LPAREN Exp RPAREN
+                    { verifyType($3, BOOL); }
 	            ;
 
 Statements	:	Statement
@@ -158,39 +112,63 @@ Statement: Open_statement
          ;
 
 Open_statement: IF LPAREN Exp RPAREN Simple_statement
+                { verifyType($3, BOOL); }
+
               | IF LPAREN Exp RPAREN Open_statement
+                { verifyType($3, BOOL); }
+
               | IF LPAREN Exp RPAREN Closed_statement ELSE Open_statement
-              | WHILE LPAREN Exp RPAREN Open_statement
+                { verifyType($3, BOOL); }
+
+              | WHILE {in_while = true;} LPAREN Exp RPAREN {in_while = false;} Open_statement
+                { verifyType($3, BOOL); }
               ;
 
 Closed_statement: Simple_statement
                 | IF LPAREN Exp RPAREN Closed_statement ELSE Closed_statement
-                | WHILE LPAREN Exp RPAREN Closed_statement
+                  { verifyType($3, BOOL); }
+
+                | WHILE LPAREN {in_while = true;} Exp RPAREN {in_while = false;} Closed_statement
+                  { verifyType($3, BOOL); }
                 ;
 
 Simple_statement: LBRACE {new_scope();} Statements RBRACE
+
                 | Type ID SC
-                {
-                  if(!add_var($1, $2, false)){
-                        yyerror("variable already defined");
-                  }
-                }
+                  { tryAddVariable($1, $2, false); }
+
                 | Type ID ASSIGN Exp SC
-                {
-                  if(!add_var($1, $2, false)){
-                        yyerror("variable already defined");
-                  }
-                }
+                  { tryAddVariable($1, $2, false); }
+
                 | ID ASSIGN Exp SC
                 | Call SC
                 | RETURN SC
+                {
+
+                }
                 | RETURN Exp SC
+                {
+
+                }
                 | BREAK SC
+                {
+                    if (!in_while) {
+                        errorUnexpectedBreak(yylineno);
+                    }
+                }
                 | CONTINUE SC
+                {
+                    if (!in_while) {
+                        errorUnexpectedContinue(yylineno);
+                    }
+                }
                 ;
 
 Call	:	ID LPAREN ExpList RPAREN
+            { verifyFunctionDefined($1); }
+
 		|	ID LPAREN RPAREN
+		    { verifyFunctionDefined($1); }
 	    ;
 
 ExpList	:	Exp
@@ -204,86 +182,57 @@ Type	:	INT
 
 Exp	:	LPAREN Exp RPAREN
 	|	Exp BINOP Exp
+	{
+        int t1 = verifyTypes($1, 2, NUM, BYTE);
+        int t2 = verifyTypes($3, 2, NUM, BYTE);
+
+        // Try NUM precision first, retreat to byte if both are BYTE
+        int preciseType = t1 == NUM ? NUM : (t2 == NUM ? NUM : BYTE);
+        $$ = new Type(preciseType);
+    }
+
 	|	ID
+    { verifyVariableDefined($1); }
+
 	|	Call
 	|	NUM
+	{ $$ = new Type(NUM); }
+
 	|	NUM B
+	{ $$ = new Type(BYTE); }
+
 	|	STRING
+	{ $$ = new Type(STRING); }
+
 	|	TRUE
+	{ $$ = new Type(BOOL); }
+
 	|	FALSE
+	{ $$ = new Type(BOOL); }
+
 	|	NOT Exp
+	{
+    	verifyType($2, BOOL);
+        $$ = new Type(BOOL);
+    }
 	|	Exp AND Exp
-	|	Exp OR	Exp
+	{
+	    verifyType($1, BOOL);
+	    verifyType($3, BOOL);
+        $$ = new Type(BOOL);
+    }
+	|	Exp OR Exp
+	{
+	    verifyType($1, BOOL);
+     	verifyType($3, BOOL);
+        $$ = new Type(BOOL);
+    }
 	|	Exp RELOP Exp
+	{
+	    verifyTypes($1, 2, NUM, BYTE);
+	    verifyTypes($3, 2, NUM, BYTE);
+	    $$ = new Type(BOOL);
+	}
 	;
 
 %%
-
-void exit_scope(){
-    offsets_stack.pop();
-    scopes_tables.pop_back();
-}
-
-void new_scope(){
-    func_param_offset = -1;
-    offsets_stack.push(offsets_stack.top());
-    scopes_tables.push_back(ScopeTable());
-}
-
-bool contains_var(string& name){
-    for(ScopeTable& t : scopes_tables){
-        if(t.find(name) != t.end()){
-            return true;
-        }
-    }
-    return false;
-}
-
-bool add_var(stack_data* type_class, stack_data* id_class, bool func_var){
-    Type* conv1 = static_cast<Type*>(type_class);
-    Id* conv2 = static_cast<Id*>(id_class);
-
-    tokens type = static_cast<tokens>(conv1->type);
-    string name = conv2->id;
-
-    if(contains_var(name) || func_table.find(name) != func_table.end()){
-        return false;
-    }
-    int* offset;
-    if(func_var)
-        offset = &func_param_offset;
-    else
-        offset = &offsets_stack.top();
-    var_data sd = {type, *offset};
-    ScopeTable& t = scopes_tables.back();
-    t.insert({name, sd});
-    if(func_var)
-        (*offset)--;
-    else
-        (*offset)++;
-    return true;
-}
-
-bool add_func(vector<int> param_types, tokens ret_type, string name){
-    func_data fd = {param_types, ret_type};
-    if(func_table.find(name) != func_table.end()){
-        return false;
-    }
-    func_table.insert({name, fd});
-    return true;
-}
-
-int yyerror(const char* message){
-	cout << "Parse error: " << message << endl;
-	exit(5);
-}
-
-int main(){
-    func_param_offset = -1;
-    offsets_stack.push(0);
-    #ifdef YYDEBUG
-        yydebug = 1;
-    #endif
-    return yyparse();
-}
-

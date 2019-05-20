@@ -15,6 +15,7 @@
 #include <stack>
 #include <unordered_map>
 #include <string>
+#include <iostream>
 
 #define tokens yytokentype
 #define YYERROR_VERBOSE 1
@@ -67,8 +68,19 @@ bool in_while = false;
 int func_param_offset;
 
 void exit_scope() {
+    int offset = offsets_stack.top();
     offsets_stack.pop();
+    ScopeTable& t = scopes_tables.back();
     scopes_tables.pop_back();
+
+    bool is_function_scope = false;
+
+    endScope();
+//    TODO Implement
+//    if (is_function_scope) {
+//        printPreconditions()
+//    }
+
 }
 
 void new_scope() {
@@ -131,6 +143,19 @@ void tryAddVariable(stack_data *type_class, stack_data *id_class, bool func_var)
     }
 }
 
+tokens getVariableType(stack_data* stackData) {
+    Id* varId = dynamic_cast<Id*>(stackData);
+    ScopeTable &t = scopes_tables.back();
+    var_data& varData = t[varId->id];
+    return varData.type;
+}
+
+tokens getFunctionReturnType(stack_data* stackData) {
+    Id* funId = dynamic_cast<Id*>(stackData);
+    func_data& funcData = func_table[funId->id];
+    return funcData.ret_type;
+}
+
 void verifyFunctionDefined(stack_data* stackData) {
     Id* functionId = dynamic_cast<Id*>(stackData);
     if (func_table.find(functionId->id) == func_table.end()) {
@@ -149,6 +174,14 @@ void verifyType(stack_data *stackData, int t) {
     Type* type = dynamic_cast<Type*>(stackData);
     if (type == nullptr || type->type != t) {
         WRAP_ERROR(errorMismatch(yylineno));
+    }
+}
+
+void verifyByteSize(stack_data* stackData) {
+    Id* num = dynamic_cast<Id*>(stackData);
+    int value = stoi(num->id);
+    if (num == nullptr || value > 255 || value < 0) {
+        WRAP_ERROR(errorByteTooLarge(yylineno, num->id));
     }
 }
 
@@ -188,6 +221,11 @@ void yyerror(char * err) {
 int main() {
     func_param_offset = -1;
     offsets_stack.push(0);
+
+    // Add library functions
+    add_func({STRING}, static_cast<tokens>(VOID), "print");
+    add_func({INT}, static_cast<tokens>(VOID), "printi");
+
 #ifdef YYDEBUG
     yydebug = 1;
 #endif

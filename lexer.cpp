@@ -975,11 +975,14 @@ YY_RULE_SETUP
 case 28:
 YY_RULE_SETUP
 #line 59 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
-return NUM;
+{
+                                    yylval = new Id(yytext);
+                                    return NUM;
+                                }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 60 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
+#line 63 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
 {
                                     yylval = new Type(STRING);
                                     return STRING;
@@ -988,26 +991,26 @@ YY_RULE_SETUP
 case 30:
 /* rule 30 can match eol */
 YY_RULE_SETUP
-#line 65 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
+#line 68 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
 ;
 	YY_BREAK
 case 31:
 /* rule 31 can match eol */
 YY_RULE_SETUP
-#line 66 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
+#line 69 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
 ;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 68 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
+#line 71 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
 errorLex(yylineno);
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 70 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
+#line 73 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
 ECHO;
 	YY_BREAK
-#line 1011 "/Users/miki/Desktop/Compilation/hw3/cmake-build-debug/lexer.cpp"
+#line 1014 "/Users/miki/Desktop/Compilation/hw3/cmake-build-debug/lexer.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2016,7 +2019,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 70 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
+#line 73 "/Users/miki/Desktop/Compilation/hw3/scanner.lex"
 
 
 

@@ -56,7 +56,10 @@ continue                        return CONTINUE;
                                     yylval = new Id(yytext);
                                     return ID;
                                 }
-0|[1-9][0-9]*                   return NUM;
+0|[1-9][0-9]*                   {
+                                    yylval = new Id(yytext);
+                                    return NUM;
+                                }
 \"([^\n\r\"\\]|\\[rnt"\\])+\"   {
                                     yylval = new Type(STRING);
                                     return STRING;

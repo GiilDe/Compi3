@@ -44,12 +44,12 @@ Funcs	:	/*epsilon*/
 
 FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE Statements RBRACE
             {
-            tokens ret_type = static_cast<tokens>(static_cast<Type*>($1)->type);
-            // tokens actual_ret_type = static_cast<tokens>(static_cast<Type*>($8)->type)
+                tokens ret_type = static_cast<tokens>(static_cast<Type*>($1)->type);
+                // tokens actual_ret_type = static_cast<tokens>(static_cast<Type*>($8)->type)
 
-            string id = static_cast<Id*>($2)->id;
-            ParamsList* l = static_cast<ParamsList*>($5);
-            add_func(l->params, ret_type, id);
+                string id = static_cast<Id*>($2)->id;
+                ParamsList* l = static_cast<ParamsList*>($5);
+                add_func(l->params, ret_type, id);
             }
 	        ;
 
@@ -61,31 +61,30 @@ RetType	:	Type
 	    ;
 
 Formals	:	/*epsilon*/
-        {
-        $$ = new ParamsList();
-        }
+        { $$ = new ParamsList(); }
+
 		|	FormalsList
 		{
-		$$ = new ParamsList();
-        vector<int>& params = static_cast<ParamsList*>($$)->params;
-        vector<int>& params_other = static_cast<ParamsList*>($1)->params;
-        params = params_other;
+            $$ = new ParamsList();
+            vector<int>& params = static_cast<ParamsList*>($$)->params;
+            vector<int>& params_other = static_cast<ParamsList*>($1)->params;
+            params = params_other;
 		}
 	    ;
 
 FormalsList	:	FormalDecl
             {
-            $$ = new ParamsList();
-            Type* t = static_cast<Type*>($1);
-            static_cast<ParamsList*>($$)->params.push_back(t->type);
+                $$ = new ParamsList();
+                Type* t = static_cast<Type*>($1);
+                static_cast<ParamsList*>($$)->params.push_back(t->type);
             }
 			|	FormalDecl COMMA FormalsList
 			{
-			$$ = new ParamsList();
-            vector<int>& params = static_cast<ParamsList*>($$)->params;
-            vector<int>& params_other = static_cast<ParamsList*>($3)->params;
-            params.push_back(static_cast<Type*>($1)->type);
-			params.insert(params.end(), params_other.begin(), params_other.end());
+                $$ = new ParamsList();
+                vector<int>& params = static_cast<ParamsList*>($$)->params;
+                vector<int>& params_other = static_cast<ParamsList*>($3)->params;
+                params.push_back(static_cast<Type*>($1)->type);
+                params.insert(params.end(), params_other.begin(), params_other.end());
 			}
 			;
 
@@ -114,7 +113,7 @@ Statement: Open_statement
 Open_statement: IF LPAREN Exp RPAREN Simple_statement
                 { verifyType($3, BOOL); }
 
-              | IF LPAREN Exp RPAREN Open_statement
+              | IF {new_scope();} LPAREN Exp RPAREN Open_statement
                 { verifyType($3, BOOL); }
 
               | IF LPAREN Exp RPAREN Closed_statement ELSE Open_statement
@@ -165,7 +164,10 @@ Simple_statement: LBRACE {new_scope();} Statements RBRACE
                 ;
 
 Call	:	ID LPAREN ExpList RPAREN
-            { verifyFunctionDefined($1); }
+            {
+                verifyFunctionDefined($1);
+                $$ = new Type(getFunctionReturnType($1));
+            }
 
 		|	ID LPAREN RPAREN
 		    { verifyFunctionDefined($1); }
@@ -176,11 +178,18 @@ ExpList	:	Exp
 	    ;
 
 Type	:	INT
+        { $$ = new Type(NUM); }
+
 		|	BYTE
+		{ $$ = new Type(BYTE); }
+
 		|	BOOL
+		{ $$ = new Type(BOOL); }
 	    ;
 
 Exp	:	LPAREN Exp RPAREN
+    { $$ = new Type(static_cast<Type*>($2)->type); }
+
 	|	Exp BINOP Exp
 	{
         int t1 = verifyTypes($1, 2, NUM, BYTE);
@@ -192,14 +201,22 @@ Exp	:	LPAREN Exp RPAREN
     }
 
 	|	ID
-    { verifyVariableDefined($1); }
+    {
+        verifyVariableDefined($1);
+        $$ = new Type(getVariableType($1));
+    }
 
 	|	Call
+	{ $$ = $1; }
+
 	|	NUM
 	{ $$ = new Type(NUM); }
 
 	|	NUM B
-	{ $$ = new Type(BYTE); }
+	{
+	    verifyByteSize($1);
+	    $$ = new Type(BYTE);
+	}
 
 	|	STRING
 	{ $$ = new Type(STRING); }

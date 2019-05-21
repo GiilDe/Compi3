@@ -19,20 +19,24 @@ public:
 class Id : public stack_data {
 public:
     string id;
-
     Id(const string &id) : id(id) {}
 };
 
 class Type : public stack_data {
 public:
     int type;
-
     Type(int type) : type(type) {}
 };
 
 class ParamsList : public stack_data {
 public:
     vector<int> params;
+};
+
+class Preconditions : public stack_data{
+public:
+    int preconditions_num;
+    Preconditions(int num) : preconditions_num(num){}
 };
 
 #define YYSTYPE stack_data*

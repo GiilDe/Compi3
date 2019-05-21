@@ -4,7 +4,7 @@
 #include <string.h>
 #include "output.hpp"
 #include "source.hpp"
-#include "cmake-build-debug/parser.tab.hpp"
+#include "parser.tab.hpp"
 
 using namespace output;
 
@@ -27,10 +27,20 @@ void                            {
                                     yylval = new Type(VOID);
                                     return VOID;
                                 }
-int                             return INT;
-byte                            return BYTE;
+int                             {
+                                    yylval = new Type(INT);
+                                    return INT;
+                                }
+byte                            {
+                                    yylval = new Type(BYTE);
+                                    return BYTE;
+                                }
 b                               return B;
-bool                            return BOOL;
+
+bool                            {
+                                    yylval = new Type(BOOL);
+                                    return BOOL;
+                                }
 and                             return AND;
 or                              return OR;
 not                             return NOT;

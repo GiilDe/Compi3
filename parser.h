@@ -10,12 +10,13 @@
 #include <stdio.h>
 #include "source.hpp"
 #include "output.hpp"
-#include "cmake-build-debug/parser.tab.hpp"
+#include "parser.tab.hpp"
 #include <vector>
 #include <stack>
 #include <unordered_map>
 #include <string>
 #include <iostream>
+#include <cstdarg>
 
 #define tokens yytokentype
 #define YYERROR_VERBOSE 1
@@ -62,6 +63,15 @@ typedef unordered_map<string, func_data> FuncTable;
 vector<ScopeTable> scopes_tables;
 stack<int> offsets_stack;
 FuncTable func_table;
+
+unordered_map<int, string> type_to_string;
+
+void initizlize_type_to_string(){
+    type_to_string.insert({static_cast<int>(VOID), "VOID"});
+    type_to_string.insert({static_cast<int>(INT), "INT"});
+    type_to_string.insert({static_cast<int>(BOOL), "BOOL"});
+    type_to_string.insert({static_cast<int>(BYTE), "BYTE"});
+}
 
 bool in_while = false;
 
@@ -123,7 +133,7 @@ bool addVariable(stack_data *varType, stack_data *varId, bool isFunctionParamete
     return true;
 }
 
-bool add_func(vector<int> param_types, tokens ret_type, string name) {
+bool add_func(vector<int> param_types, tokens ret_type, const string& name) {
     func_data fd = {param_types, ret_type};
     if (func_table.find(name) != func_table.end()) {
         return false;
@@ -214,7 +224,7 @@ void verifyMainFunction() {
     }
 }
 
-void yyerror(char * err) {
+void yyerror(const char * err) {
     WRAP_ERROR(errorSyn(yylineno));
 }
 
@@ -226,9 +236,8 @@ int main() {
     add_func({STRING}, static_cast<tokens>(VOID), "print");
     add_func({INT}, static_cast<tokens>(VOID), "printi");
 
-#ifdef YYDEBUG
-    yydebug = 1;
-#endif
+    initizlize_type_to_string();
+
     return yyparse();
 }
 

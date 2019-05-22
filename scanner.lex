@@ -36,7 +36,6 @@ byte                            {
                                     return BYTE;
                                 }
 b                               return B;
-
 bool                            {
                                     yylval = new Type(BOOL);
                                     return BOOL;

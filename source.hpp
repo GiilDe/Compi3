@@ -7,7 +7,8 @@
 
 #include <string>
 #include <vector>
-
+#include <unordered_set>
+#include <algorithm>
 
 using namespace std;
 
@@ -28,9 +29,11 @@ public:
     Type(int type) : type(type) {}
 };
 
-class ParamsList : public stack_data {
+class TypesList : public stack_data {
 public:
     vector<int> params;
+    TypesList() : params(){}
+    TypesList(vector<int> vector) : params(vector){}
 };
 
 class Preconditions : public stack_data{
@@ -38,6 +41,8 @@ public:
     int preconditions_num;
     Preconditions(int num) : preconditions_num(num){}
 };
+
+
 
 #define YYSTYPE stack_data*
 

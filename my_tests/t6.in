@@ -1,0 +1,10 @@
+bool preFunc(int x, int y)
+@pre (x >= 1)
+@pre(y >= 1)
+{
+    int t;
+    int l = 3;
+    return x < y;
+}
+
+void s(){int k;}

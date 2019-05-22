@@ -35,22 +35,33 @@
 %%
 
 Program	:	Funcs
-        { verifyMainFunction(); }
+        { verifyMainFunction();
+          exit_last_scope();}
         ;
 
 Funcs	:	/*epsilon*/
 		|	FuncDecl Funcs
 	    ;
 
-FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE Statements RBRACE
+FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions {endScope(); condPrintWrapper($2, $7);} LBRACE Statements RBRACE
             {
-                tokens ret_type = static_cast<tokens>(static_cast<Type*>($1)->type);
+                TypesList* ret_types = dynamic_cast<TypesList*>($10);
+                if(ret_types != NULL){
+                    if(!all_ret_same(ret_types->params)){
+                        WRAP_ERROR(errorMismatch(yylineno));
+                    }
+                }
+                int ret_type_from_statement = get_ret_from_statements(ret_types);
+                int ret_type_num = static_cast<Type*>($1)->type;
+                tokens ret_type = static_cast<tokens>(ret_type_num);
+                if(!compare_types(ret_type_from_statement, ret_type_num)){
+                    WRAP_ERROR(errorMismatch(yylineno));
+                }
                 string id = static_cast<Id*>($2)->id;
-                ParamsList* l = static_cast<ParamsList*>($5);
-                add_func(l->params, ret_type, id);
+                TypesList* func_params = static_cast<TypesList*>($5);
+                add_func(func_params->params, ret_type, id);
                 int pre_num = static_cast<Preconditions*>($7)->preconditions_num;
-                printPreconditions(id, pre_num);
-                exit_scope();
+                exit_scope(true);
             }
 	        ;
 
@@ -62,28 +73,28 @@ RetType	:	Type
 	    ;
 
 Formals	:	/*epsilon*/
-        { $$ = new ParamsList(); }
+        { $$ = new TypesList(); }
 
 		|	FormalsList
 		{
-            $$ = new ParamsList();
-            vector<int>& params = static_cast<ParamsList*>($$)->params;
-            vector<int>& params_other = static_cast<ParamsList*>($1)->params;
+            $$ = new TypesList();
+            vector<int>& params = static_cast<TypesList*>($$)->params;
+            vector<int>& params_other = static_cast<TypesList*>($1)->params;
             params = params_other;
 		}
 	    ;
 
 FormalsList	:	FormalDecl
             {
-                $$ = new ParamsList();
+                $$ = new TypesList();
                 Type* t = static_cast<Type*>($1);
-                static_cast<ParamsList*>($$)->params.push_back(t->type);
+                static_cast<TypesList*>($$)->params.push_back(t->type);
             }
 			|	FormalDecl COMMA FormalsList
 			{
-                $$ = new ParamsList();
-                vector<int>& params = static_cast<ParamsList*>($$)->params;
-                vector<int>& params_other = static_cast<ParamsList*>($3)->params;
+                $$ = new TypesList();
+                vector<int>& params = static_cast<TypesList*>($$)->params;
+                vector<int>& params_other = static_cast<TypesList*>($3)->params;
                 params.push_back(static_cast<Type*>($1)->type);
                 params.insert(params.end(), params_other.begin(), params_other.end());
 			}
@@ -93,8 +104,6 @@ FormalDecl	:	Type ID
             {
                 tryAddVariable($1, $2, true);
                 $$ = new Type(static_cast<Type*>($1)->type);
-                printID(static_cast<Id*>($2)->id, func_param_offset+1,
-                        type_to_string[static_cast<Type*>($1)->type]);
 	        }
             ;
 PreConditions	:	/*epsilon*/ {$$ = new Preconditions(0);}
@@ -110,62 +119,135 @@ PreCondition	:	PRECOND LPAREN Exp RPAREN
 	            ;
 
 Statements	:	Statement
+            {
+                TypesList* t = dynamic_cast<TypesList*>($1);
+                if(t != NULL){
+                    $$ = new TypesList(t->params);
+                }
+            }
 			|	Statements Statement
+                {
+                    TypesList* t1 = dynamic_cast<TypesList*>($1);
+                    TypesList* t2 = dynamic_cast<TypesList*>($2);
+                    if(t1 != NULL || t2 != NULL){
+                        $$ = new TypesList();
+                        concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);
+                    }
+                }
 	        ;
 
 Statement: Open_statement
+           {
+                TypesList* t = dynamic_cast<TypesList*>($1);
+                if(t != NULL){
+                    $$ = new TypesList(t->params);
+                }
+           }
          | Closed_statement
+           {
+                TypesList* t = dynamic_cast<TypesList*>($1);
+                if(t != NULL){
+                    $$ = new TypesList(t->params);
+                }
+           }
          ;
 
 Open_statement: IF LPAREN Exp RPAREN Simple_statement
-                { verifyType($3, BOOL); }
+                {
+                    verifyType($3, BOOL);
+                    TypesList* t = dynamic_cast<TypesList*>($5);
+                    if(t != NULL){
+                        $$ = new TypesList(t->params);
+                    }
+                }
 
-              | IF {new_scope();} LPAREN Exp RPAREN Open_statement
-                { verifyType($3, BOOL); }
+              | IF LPAREN Exp RPAREN Open_statement
+                {
+                    verifyType($3, BOOL);
+                    TypesList* t = dynamic_cast<TypesList*>($5);
+                    if(t != NULL){
+                        $$ = new TypesList(t->params);
+                    }
+                }
 
               | IF LPAREN Exp RPAREN Closed_statement ELSE Open_statement
-                { verifyType($3, BOOL); }
+                {
+                    verifyType($3, BOOL);
+                    TypesList* t1 = dynamic_cast<TypesList*>($5);
+                    TypesList* t2 = dynamic_cast<TypesList*>($7);
+                    if(t1 != NULL || t2 != NULL){
+                        $$ = new TypesList();
+                        concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);
+                    }
+                }
 
               | WHILE {in_while = true;} LPAREN Exp RPAREN {in_while = false;} Open_statement
-                { verifyType($3, BOOL); }
+                {
+                    verifyType($3, BOOL);
+                    TypesList* t = dynamic_cast<TypesList*>($7);
+                    if(t != NULL){
+                        $$ = new TypesList(t->params);
+                    }
+                }
               ;
 
 Closed_statement: Simple_statement
                 | IF LPAREN Exp RPAREN Closed_statement ELSE Closed_statement
-                  { verifyType($3, BOOL); }
+                  {
+                    verifyType($3, BOOL);
+                    TypesList* t1 = dynamic_cast<TypesList*>($5);
+                    TypesList* t2 = dynamic_cast<TypesList*>($7);
+                    if(t1 != NULL || t2 != NULL){
+                        $$ = new TypesList();
+                        concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);
+                    }
+                  }
 
                 | WHILE LPAREN {in_while = true;} Exp RPAREN {in_while = false;} Closed_statement
-                  { verifyType($3, BOOL); }
+                  {
+                    verifyType($3, BOOL);
+                    TypesList* t1 = dynamic_cast<TypesList*>($7);
+                    if(t1 != NULL){
+                         $$ = new TypesList(t1->params);
+                    }
+                  }
                 ;
 
-Simple_statement: LBRACE {new_scope();} Statements RBRACE {exit_scope();}
+Simple_statement: LBRACE Statements RBRACE
+                  {
+                   TypesList* t = dynamic_cast<TypesList*>($2);
+                   if(t != NULL){
+                        $$ = new TypesList(t->params);
+                   }
+                  }
 
                 | Type ID SC
-                  {tryAddVariable($1, $2, false);
-                   printID(static_cast<Id*>($2)->id, offsets_stack.top()-1,
-                   type_to_string[static_cast<Type*>($1)->type]);}
+                  {tryAddVariable($1, $2, false);}
 
                 | Type ID ASSIGN Exp SC
                   {tryAddVariable($1, $2, false);
-                   Type* t = static_cast<Type*>($1);
-                   printID(static_cast<Id*>($2)->id, offsets_stack.top()-1,
-                   type_to_string[static_cast<Type*>($1)->type]);}
+                   Type* t = static_cast<Type*>($1);}
 
                 | ID ASSIGN Exp SC
                 | Call SC
                 | RETURN SC
                 {
-
+                 int type = static_cast<int>(VOID);
+                 vector<int> v = {type};
+                   $$ = new TypesList(v);
                 }
                 | RETURN Exp SC
                 {
-
+                 int type = static_cast<Type*>($2)->type;
+                 vector<int> v = {type};
+                 $$ = new TypesList(v);
                 }
                 | BREAK SC
                 {
                     if (!in_while) {
                         errorUnexpectedBreak(yylineno);
                     }
+                    $$ = new Type(static_cast<int>(VOID));
                 }
                 | CONTINUE SC
                 {
@@ -179,14 +261,32 @@ Call	:	ID LPAREN ExpList RPAREN
             {
                 verifyFunctionDefined($1);
                 $$ = new Type(getFunctionReturnType($1));
+                verifyRightParams($1, $3);
             }
 
 		|	ID LPAREN RPAREN
-		    { verifyFunctionDefined($1); }
+		    {
+		        $$ = new Type(getFunctionReturnType($1));
+		        verifyFunctionDefined($1);
+		        TypesList* empty = new TypesList();
+                verifyRightParams($1, empty);
+		    }
 	    ;
 
 ExpList	:	Exp
+        {
+         int type = static_cast<Type*>($1)->type;
+         vector<int> v = {type};
+         $$ = new TypesList(v);
+        }
 		|	Exp COMMA ExpList
+		{
+		 int type = static_cast<Type*>($1)->type;
+         $$ = new TypesList({type});
+         vector<int>& v = static_cast<TypesList*>($$)->params;
+         vector<int>& exp = static_cast<TypesList*>($3)->params;
+         v.insert(v.end(), exp.begin(), exp.end());
+		}
 	    ;
 
 Type	:	INT

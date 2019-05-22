@@ -1,0 +1,11 @@
+int main(){
+    bool r = true;
+    if(r){
+        return 3;
+    }
+    else{
+        return "asdsa";
+    }
+}
+
+int g(){}

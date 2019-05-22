@@ -31,10 +31,11 @@
 %token            ID
 %token            NUM
 %token            STRING
+%token            EF
 
 %%
 
-Program	:	Funcs
+Program	:	Funcs EF
         { verifyMainFunction();
           exit_last_scope();}
         ;

@@ -76,7 +76,7 @@ continue                        return CONTINUE;
 
 \/\/[^\r\n]*[\r|\n|\r\n]?       ;
 {ws}                            ;
-
+<<EOF>> {return EF;}
 .                               errorLex(yylineno);
 
 %%

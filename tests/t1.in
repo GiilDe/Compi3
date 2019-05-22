@@ -11,6 +11,3 @@ void main()
     int z;
 }
 
-int blabla(){int x;}
-
-int g(){}

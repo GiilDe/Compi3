@@ -59,6 +59,7 @@ struct func_data {
 typedef unordered_map<string, var_data> ScopeTable;
 typedef unordered_map<string, func_data> FuncTable;
 
+vector<string> func_names;
 vector<ScopeTable> scopes_tables;
 stack<int> offsets_stack;
 FuncTable func_table;
@@ -166,7 +167,17 @@ bool contains_var(string &name) {
 
 void exit_last_scope(){
     endScope();
-
+    for(string& name : func_names){
+        func_data data = func_table[name];
+        string ret_type = type_to_string_token[data.ret_type];
+        vector<string> args;
+        for(int type : data.param_types){
+            args.push_back(type_to_string[type]);
+        }
+        string s = makeFunctionType(ret_type, args);
+        string to_print = name + s;
+        cout << to_print << endl;
+    }
 }
 
 bool addVariable(stack_data *varType, stack_data *varId, bool isFunctionParameter) {
@@ -213,6 +224,7 @@ void add_func(vector<int> param_types, tokens ret_type, const string& name) {
         WRAP_ERROR(errorSyn(yylineno));
     }
     func_table.insert({name, fd});
+    func_names.push_back(name);
 }
 
 void tryAddVariable(stack_data *type_class, stack_data *id_class, bool func_var) {
@@ -338,7 +350,7 @@ void concatenate_params(vector<int>& v, TypesList* t1, TypesList* t2){
     }
 }
 
-int main() {
+int main(){
     func_param_offset = -1;
     offsets_stack.push(0);
 

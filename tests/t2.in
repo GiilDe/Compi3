@@ -20,3 +20,14 @@ void main() {
     else
         syntax error;
 }
+
+
+
+void main() {
+    if (true) {
+        int x = 6;
+    }
+    else{
+        int y = 2;
+    }
+}

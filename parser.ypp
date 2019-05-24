@@ -35,18 +35,36 @@
 
 %%
 
-Program	:	Funcs EF
-        { verifyMainFunction();
-          exit_last_scope();}
+Program	:	Funcs
+        {
+         verifyMainFunction();
+         PrecondList* t = dynamic_cast<PrecondList*>($1);
+         vector<int>& tv = t->preconditions_nums;
+         exit_last_scope(tv);
+        }
         ;
 
 Funcs	:	/*epsilon*/
+        {
+         $$ = new PrecondList();
+        }
 		|	FuncDecl Funcs
+		{
+		 PrecondList* p = dynamic_cast<PrecondList*>($1);
+		 vector<int>& pv = p->preconditions_nums;
+         $$ = new PrecondList();
+         PrecondList* t = dynamic_cast<PrecondList*>($$);
+         vector<int>& tv = t->preconditions_nums;
+         tv.insert(tv.end(), pv.begin(), pv.end());
+         PrecondList* p2 = dynamic_cast<PrecondList*>($2);
+         vector<int>& pv2 = p2->preconditions_nums;
+         tv.insert(tv.end(), pv2.begin(), pv2.end());
+		}
 	    ;
 
-FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions {endScope(); condPrintWrapper($2, $7);} LBRACE Statements RBRACE
+FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE Statements RBRACE
             {
-                TypesList* ret_types = dynamic_cast<TypesList*>($10);
+                TypesList* ret_types = dynamic_cast<TypesList*>($9);
                 if(ret_types != NULL){
                     if(!all_ret_same(ret_types->params)){
                         WRAP_ERROR(errorMismatch(yylineno));
@@ -62,7 +80,9 @@ FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions {endSco
                 TypesList* func_params = static_cast<TypesList*>($5);
                 add_func(func_params->params, ret_type, id);
                 int pre_num = static_cast<Preconditions*>($7)->preconditions_num;
-                exit_scope(true);
+                exit_scope(true, $2, $7);
+
+                $$ = new PrecondList(pre_num);
             }
 	        ;
 
@@ -107,7 +127,8 @@ FormalDecl	:	Type ID
                 $$ = new Type(static_cast<Type*>($1)->type);
 	        }
             ;
-PreConditions	:	/*epsilon*/ {$$ = new Preconditions(0);}
+PreConditions	:	/*epsilon*/
+                {$$ = new Preconditions(0);}
 				|	PreConditions PreCondition
 				{
 				 int num = static_cast<Preconditions*>($1)->preconditions_num;
@@ -115,8 +136,8 @@ PreConditions	:	/*epsilon*/ {$$ = new Preconditions(0);}
 				}
 	            ;
 
-PreCondition	:	PRECOND LPAREN Exp RPAREN
-                    { verifyType($3, BOOL); }
+PreCondition	:	PRECOND LPAREN Exp {verifyType($3, BOOL);} RPAREN
+                    {$$ = new Preconditions(0);}
 	            ;
 
 Statements	:	Statement
@@ -153,73 +174,74 @@ Statement: Open_statement
            }
          ;
 
-Open_statement: IF LPAREN Exp RPAREN Simple_statement
+Open_statement: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Simple_statement
                 {
-                    verifyType($3, BOOL);
-                    TypesList* t = dynamic_cast<TypesList*>($5);
+                    TypesList* t = dynamic_cast<TypesList*>($6);
                     if(t != NULL){
                         $$ = new TypesList(t->params);
                     }
+                    exit_scope(false, NULL, NULL);
                 }
 
-              | IF LPAREN Exp RPAREN Open_statement
+              | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Open_statement
                 {
-                    verifyType($3, BOOL);
-                    TypesList* t = dynamic_cast<TypesList*>($5);
+                    TypesList* t = dynamic_cast<TypesList*>($6);
                     if(t != NULL){
                         $$ = new TypesList(t->params);
                     }
+                    exit_scope(false, NULL, NULL);
                 }
 
-              | IF LPAREN Exp RPAREN Closed_statement ELSE Open_statement
+              | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Closed_statement {exit_scope(false, NULL, NULL); new_scope();} ELSE Open_statement
                 {
-                    verifyType($3, BOOL);
-                    TypesList* t1 = dynamic_cast<TypesList*>($5);
-                    TypesList* t2 = dynamic_cast<TypesList*>($7);
+                    TypesList* t1 = dynamic_cast<TypesList*>($6);
+                    TypesList* t2 = dynamic_cast<TypesList*>($9);
                     if(t1 != NULL || t2 != NULL){
                         $$ = new TypesList();
                         concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);
                     }
+                    exit_scope(false, NULL, NULL);
                 }
 
-              | WHILE {in_while = true;} LPAREN Exp RPAREN {in_while = false;} Open_statement
+              | WHILE {in_while = true;} LPAREN Exp RPAREN {verifyType($4, BOOL); new_scope(); in_while = false;} Open_statement
                 {
-                    verifyType($3, BOOL);
                     TypesList* t = dynamic_cast<TypesList*>($7);
                     if(t != NULL){
                         $$ = new TypesList(t->params);
                     }
+                    exit_scope(false, NULL, NULL);
                 }
               ;
 
 Closed_statement: Simple_statement
-                | IF LPAREN Exp RPAREN Closed_statement ELSE Closed_statement
+                | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Closed_statement {exit_scope(false, NULL, NULL); new_scope();} ELSE Closed_statement
                   {
-                    verifyType($3, BOOL);
-                    TypesList* t1 = dynamic_cast<TypesList*>($5);
-                    TypesList* t2 = dynamic_cast<TypesList*>($7);
+                    TypesList* t1 = dynamic_cast<TypesList*>($6);
+                    TypesList* t2 = dynamic_cast<TypesList*>($9);
                     if(t1 != NULL || t2 != NULL){
                         $$ = new TypesList();
                         concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);
                     }
+                    exit_scope(false, NULL, NULL);
                   }
 
-                | WHILE LPAREN {in_while = true;} Exp RPAREN {in_while = false;} Closed_statement
+                | WHILE LPAREN {in_while = true;} Exp RPAREN {verifyType($4, BOOL); new_scope(); in_while = false;} Closed_statement
                   {
-                    verifyType($3, BOOL);
                     TypesList* t1 = dynamic_cast<TypesList*>($7);
                     if(t1 != NULL){
                          $$ = new TypesList(t1->params);
                     }
+                    exit_scope(false, NULL, NULL);
                   }
                 ;
 
-Simple_statement: LBRACE Statements RBRACE
+Simple_statement:  LBRACE {new_scope();} Statements RBRACE
                   {
-                   TypesList* t = dynamic_cast<TypesList*>($2);
+                   TypesList* t = dynamic_cast<TypesList*>($3);
                    if(t != NULL){
                         $$ = new TypesList(t->params);
                    }
+                   exit_scope(false, NULL, NULL);
                   }
 
                 | Type ID SC

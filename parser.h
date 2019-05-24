@@ -72,6 +72,8 @@ void initizlize_type_to_string(){
     type_to_string.insert({static_cast<int>(INT), "INT"});
     type_to_string.insert({static_cast<int>(BOOL), "BOOL"});
     type_to_string.insert({static_cast<int>(BYTE), "BYTE"});
+    type_to_string.insert({static_cast<int>(STRING), "STRING"});
+
 
     type_to_string_token.insert({VOID, "VOID"});
     type_to_string_token.insert({INT, "INT"});
@@ -118,9 +120,13 @@ bool var_comp_rev(pair<string, var_data>& v1, pair<string, var_data>& v2){
     return d1.offset > d2.offset;
 }
 
-void exit_scope(bool is_func) {
-    if(!is_func){
-        endScope();
+void exit_scope(bool is_func, stack_data* name, stack_data* precond_num) {
+
+    endScope();
+    if(is_func){
+        string id = dynamic_cast<Id*>(name)->id;
+        int n = dynamic_cast<Preconditions*>(precond_num)->preconditions_num;
+        printPreconditions(id, n);
     }
     int offset = offsets_stack.top();
     offsets_stack.pop();
@@ -165,9 +171,11 @@ bool contains_var(string &name) {
     return false;
 }
 
-void exit_last_scope(){
+void exit_last_scope(vector<int>& precond_nums){
     endScope();
-    for(string& name : func_names){
+    for(int i = 0; i < func_names.size(); i++){
+        string& name = func_names[i];
+        int num = precond_nums[i];
         func_data data = func_table[name];
         string ret_type = type_to_string_token[data.ret_type];
         vector<string> args;
@@ -175,7 +183,7 @@ void exit_last_scope(){
             args.push_back(type_to_string[type]);
         }
         string s = makeFunctionType(ret_type, args);
-        string to_print = name + s;
+        string to_print = name + s + " " + to_string(num);
         cout << to_print << endl;
     }
 }
@@ -205,11 +213,6 @@ bool addVariable(stack_data *varType, stack_data *varId, bool isFunctionParamete
     return true;
 }
 
-void condPrintWrapper(stack_data* name, stack_data* precond_num){
-    string id = dynamic_cast<Id*>(name)->id;
-    int n = dynamic_cast<Preconditions*>(precond_num)->preconditions_num;
-    printPreconditions(id, n);
-}
 
 void error() {
     exit(5);

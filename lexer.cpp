@@ -1016,10 +1016,6 @@ YY_RULE_SETUP
 #line 78 "/cygdrive/c/Users/Gilad/ClionProjects/Compi3/scanner.lex"
 ;
 	YY_BREAK
-case YY_STATE_EOF(INITIAL):
-#line 79 "/cygdrive/c/Users/Gilad/ClionProjects/Compi3/scanner.lex"
-{return EF;}
-	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 80 "/cygdrive/c/Users/Gilad/ClionProjects/Compi3/scanner.lex"
@@ -1030,7 +1026,9 @@ YY_RULE_SETUP
 #line 82 "/cygdrive/c/Users/Gilad/ClionProjects/Compi3/scanner.lex"
 ECHO;
 	YY_BREAK
-#line 1033 "/cygdrive/c/Users/Gilad/ClionProjects/Compi3/lexer.cpp"
+#line 1029 "/cygdrive/c/Users/Gilad/ClionProjects/Compi3/lexer.cpp"
+case YY_STATE_EOF(INITIAL):
+	yyterminate();
 
 	case YY_END_OF_BUFFER:
 		{

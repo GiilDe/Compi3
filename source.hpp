@@ -42,6 +42,15 @@ public:
     Preconditions(int num) : preconditions_num(num){}
 };
 
+class PrecondList : public stack_data{
+public:
+    vector<int> preconditions_nums;
+    PrecondList(int num){
+        preconditions_nums.push_back(num);
+    }
+    PrecondList() : preconditions_nums(){}
+};
+
 
 
 #define YYSTYPE stack_data*

@@ -80,6 +80,7 @@ stack<int> offsets_stack;
 FuncTable func_table;
 
 map<int, string> type_to_string;
+set<int> int_convertables;
 
 void initizlize_type_to_string(){
     type_to_string.insert(pair<int, string>(VOID, "VOID"));
@@ -89,7 +90,6 @@ void initizlize_type_to_string(){
     type_to_string.insert(pair<int, string>(STRING, "STRING"));
 }
 
-set<int> int_convertables;
 
 bool compare_types(int assignee, int rvalue) {
     if(assignee == rvalue || (assignee == INT && (int_convertables.find(rvalue) != int_convertables.end()))) {
@@ -190,6 +190,24 @@ void exit_last_scope(){
         string to_print = name + " " + s + " " + "0";
         cout << to_print << endl;
     }
+}
+
+PrecondList* addPreconds(stack_data *pl1, stack_data *pl2) {
+    PrecondList* p = dynamic_cast<PrecondList*>(pl1);
+    vector<int>& pv = p->preconditions_nums;
+
+    PrecondList* t = new PrecondList();
+    vector<int>& tv = t->preconditions_nums;
+    if (p != NULL) {
+        tv.insert(tv.end(), pv.begin(), pv.end());
+    }
+    PrecondList* p2 = dynamic_cast<PrecondList*>(pl2);
+    vector<int>& pv2 = p2->preconditions_nums;
+
+    if (p2 != NULL) {
+        tv.insert(tv.end(), pv2.begin(), pv2.end());
+    }
+    return t;
 }
 
 bool addVariable(stack_data *varType, stack_data *varId, bool isFunctionParameter) {
@@ -420,9 +438,9 @@ int main(){
 
     initizlize_type_to_string();
 
-//#ifdef YYDEBUG
-//    yydebug = 1;
-//#endif
+#ifdef YYDEBUG
+    yydebug = 1;
+#endif
     return yyparse();
 }
 

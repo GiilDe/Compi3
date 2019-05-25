@@ -45,20 +45,10 @@ Program	:	Funcs EF
 
 Funcs	:	/*epsilon*/
         {
-         $$ = new PrecondList();
+            $$ = new PrecondList();
         }
 		|	FuncDecl Funcs
-		{
-		 PrecondList* p = dynamic_cast<PrecondList*>($1);
-		 vector<int>& pv = p->preconditions_nums;
-         $$ = new PrecondList();
-         PrecondList* t = dynamic_cast<PrecondList*>($$);
-         vector<int>& tv = t->preconditions_nums;
-         tv.insert(tv.end(), pv.begin(), pv.end());
-         PrecondList* p2 = dynamic_cast<PrecondList*>($2);
-         vector<int>& pv2 = p2->preconditions_nums;
-         tv.insert(tv.end(), pv2.begin(), pv2.end());
-		}
+		{ $$ = addPreconds($1, $2); }
 	    ;
 
 

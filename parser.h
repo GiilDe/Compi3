@@ -26,7 +26,7 @@
 #define WRAP_ERROR(exp) \
     do { \
         exp; \
-        error(); \
+        exit(1); \
     } while (0)
 
 using namespace std;
@@ -50,6 +50,7 @@ extern int yydebug;
 
 int in_while = 0;
 int func_param_offset;
+int current_return_type;
 
 struct var_data {
     tokens type;
@@ -79,12 +80,10 @@ void initizlize_type_to_string(){
     type_to_string.insert({STRING, "STRING"});
 }
 
-unordered_set<int> int_convertables = {259, 260, 285};
+unordered_set<int> int_convertables = {INT, BYTE, NUM};
 
-bool compare_types(int t1, int t2){
-    if(t1 == t2 ||
-       (find(int_convertables.begin(), int_convertables.end(), t1) != int_convertables.end() &&
-        find(int_convertables.begin(), int_convertables.end(), t2) != int_convertables.end())) {
+bool compare_types(int assignee, int rvalue) {
+    if(assignee == rvalue || (assignee == INT && (int_convertables.find(rvalue) != int_convertables.end()))) {
         return true;
     }
     return false;
@@ -163,11 +162,10 @@ bool contains_var(string &name) {
     return false;
 }
 
-void exit_last_scope(vector<int>& precond_nums){
+void exit_last_scope(){
     endScope();
     for(int i = 0; i < func_names.size(); i++){
         string& name = func_names[i];
-        int num = precond_nums[i];
         func_data data = func_table[name];
         string ret_type = type_to_string[data.ret_type];
         vector<string> args;
@@ -175,7 +173,7 @@ void exit_last_scope(vector<int>& precond_nums){
             args.push_back(type_to_string[type]);
         }
         string s = makeFunctionType(ret_type, args);
-        string to_print = name + " " + s + " " + to_string(num);
+        string to_print = name + " " + s + " " + to_string(0);
         cout << to_print << endl;
     }
 }
@@ -205,18 +203,10 @@ bool addVariable(stack_data *varType, stack_data *varId, bool isFunctionParamete
     return true;
 }
 
-
-void error() {
-    exit(5);
-}
-
 void add_func(vector<int> param_types, tokens ret_type, const string& name) {
     func_data fd = {param_types, ret_type};
     if (func_table.find(name) != func_table.end()) {
         WRAP_ERROR(errorDef(yylineno, name));
-    }
-    if(name == "main" && (ret_type != VOID || !param_types.empty())){
-        WRAP_ERROR(errorSyn(yylineno));
     }
     func_table.insert({name, fd});
     func_names.push_back(name);
@@ -264,8 +254,8 @@ void verifyRightParams(stack_data* func_name, stack_data* param_list){
         string s = type_to_string[type];
         params_string.push_back(s);
     }
-    if(!compare_types(params, real_params)){
-        errorPrototypeMismatch(yylineno, functionId, params_string);
+    if(!compare_types(real_params, params)){
+        WRAP_ERROR(errorPrototypeMismatch(yylineno, functionId, params_string));
     }
 }
 
@@ -278,7 +268,7 @@ void verifyVariableDefined(stack_data * stackData) {
 
 void verifyType(stack_data *stackData, int t) {
     Type* type = dynamic_cast<Type*>(stackData);
-    if (type == nullptr || type->type != t) {
+    if (type == nullptr || !compare_types(type->type, t)) {
         WRAP_ERROR(errorMismatch(yylineno));
     }
 }
@@ -291,6 +281,26 @@ void verifyByteSize(stack_data* stackData) {
     }
 }
 
+void verifyIdType(stack_data* idStackData, stack_data* expStackData) {
+    Id* id = dynamic_cast<Id*>(idStackData);
+    Type* type = dynamic_cast<Type*>(expStackData);
+
+    for (ScopeTable &t : scopes_tables) {
+        if (t.find(id->id) != t.end()) {
+            var_data& varData = t[id->id];
+            if (!compare_types(varData.type, type->type)) {
+                WRAP_ERROR(errorMismatch(yylineno));
+            }
+        }
+    }
+}
+
+void verifyReturn(int type) {
+    if (!compare_types(current_return_type, type)) {
+        WRAP_ERROR(errorMismatch(yylineno));
+    }
+}
+
 int verifyTypes(stack_data *stackData, int num, ...) {
     Type* type = dynamic_cast<Type*>(stackData);
 
@@ -299,7 +309,7 @@ int verifyTypes(stack_data *stackData, int num, ...) {
     va_start(arguments, num);           // Initializing arguments to store all values after num
     for ( int x = 0; x < num; x++) {
         int t = va_arg(arguments, int);
-        if (type != nullptr && type->type == t) {
+        if (type != nullptr && compare_types(type->type,t) ) {
             return t;
         }
     }
@@ -347,7 +357,7 @@ void yyerror(const char * err) {
 bool all_ret_same(const vector<int>& ret_params){
     int last = ret_params[0];
     for(int i : ret_params){
-        if(!compare_types(i, last))
+        if(!compare_types(last, i))
             return false;
     }
     return true;

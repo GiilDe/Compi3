@@ -331,9 +331,8 @@ Type	:	INT
 Exp	:	LPAREN Exp RPAREN
     { $$ = new Type(static_cast<Type*>($2)->type); }
 
-	|	Exp BINOP Exp
+	|	Exp {int t1 = verifyTypes($1, 3, NUM, BYTE, INT);} BINOP Exp
 	{
-        int t1 = verifyTypes($1, 3, NUM, BYTE, INT);
         int t2 = verifyTypes($3, 3, NUM, BYTE, INT);
 
         // Try NUM precision first, retreat to byte if both are BYTE
@@ -373,22 +372,19 @@ Exp	:	LPAREN Exp RPAREN
     	verifyType($2, BOOL);
         $$ = new Type(BOOL);
     }
-	|	Exp AND Exp
+	|	Exp {verifyType($1, BOOL);} AND Exp
 	{
-	    verifyType($1, BOOL);
-	    verifyType($3, BOOL);
+	    verifyType($4, BOOL);
         $$ = new Type(BOOL);
     }
-	|	Exp OR Exp
+	|	Exp {verifyType($1, BOOL);} OR Exp
 	{
-	    verifyType($1, BOOL);
-     	verifyType($3, BOOL);
+     	verifyType($4, BOOL);
         $$ = new Type(BOOL);
     }
-	|	Exp RELOP Exp
+	|	Exp {verifyTypes($1, 3, NUM, BYTE, INT);} RELOP Exp
 	{
-	    verifyTypes($1, 3, NUM, BYTE, INT);
-	    verifyTypes($3, 3, NUM, BYTE, INT);
+	    verifyTypes($4, 3, NUM, BYTE, INT);
 	    $$ = new Type(BOOL);
 	}
 	;

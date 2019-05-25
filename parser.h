@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <utility>
 #include "source.hpp"
 #include "output.hpp"
 #include "parser.tab.hpp"
@@ -15,6 +16,7 @@
 #include <stack>
 #include <unordered_map>
 #include <string>
+#include <algorithm>
 #include <iostream>
 #include <cstdarg>
 
@@ -102,13 +104,13 @@ bool in_while = false;
 
 int func_param_offset;
 
-bool var_comp(pair<string, var_data>& v1, pair<string, var_data>& v2){
+bool var_comp(const pair<string, var_data>& v1, const pair<string, var_data>& v2) {
     var_data d1 = v1.second;
     var_data d2 = v2.second;
     return d1.offset < d2.offset;
 }
 
-bool var_comp_rev(pair<string, var_data>& v1, pair<string, var_data>& v2){
+bool var_comp_rev(const pair<string, var_data>& v1, const pair<string, var_data>& v2) {
     var_data d1 = v1.second;
     var_data d2 = v2.second;
     return d1.offset > d2.offset;
@@ -125,8 +127,8 @@ void exit_scope(bool is_func, stack_data* name, stack_data* precond_num) {
     int offset = offsets_stack.top();
     offsets_stack.pop();
     ScopeTable& vars_to_print = scopes_tables.back();
-    vector<pair<string, var_data>> vars_pos;
-    vector<pair<string, var_data>> vars_neg;
+    vector<pair<string, var_data> > vars_pos;
+    vector<pair<string, var_data> > vars_neg;
 
     for(pair<string, var_data> d : vars_to_print){
         var_data data = d.second;
@@ -366,7 +368,7 @@ int main(){
     initizlize_type_to_string();
 
 //#ifdef YYDEBUG
-    yydebug = 1;
+//    yydebug = 1;
 //#endif
     return yyparse();
 }

@@ -99,7 +99,6 @@ bool compare_types(vector<int>& v1, vector<int>& v2){
     return true;
 }
 
-
 bool in_while = false;
 
 int func_param_offset;
@@ -117,7 +116,6 @@ bool var_comp_rev(const pair<string, var_data>& v1, const pair<string, var_data>
 }
 
 void exit_scope(bool is_func, stack_data* name, stack_data* precond_num) {
-
     endScope();
     if(is_func){
         string id = dynamic_cast<Id*>(name)->id;

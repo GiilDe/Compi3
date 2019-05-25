@@ -268,14 +268,16 @@ Simple_statement:  LBRACE {new_scope();} Statements RBRACE
                 {
                     verifyReturn(VOID);
                     int type = static_cast<int>(VOID);
-                    vector<int> v = {type};
+                    vector<int> v;
+                    v.push_back(type);
                     $$ = new TypesList(v);
                 }
                 | RETURN Exp SC
                 {
                     int type = static_cast<Type*>($2)->type;
                     verifyReturn(type);
-                    vector<int> v = {type};
+                    vector<int> v;
+                    v.push_back(type);
                     $$ = new TypesList(v);
                 }
                 | BREAK SC
@@ -308,13 +310,16 @@ Call	:	ID LPAREN ExpList RPAREN
 ExpList	:	Exp
         {
             int type = static_cast<Type*>($1)->type;
-            vector<int> v = {type};
+            vector<int> v;
+            v.push_back(type);
             $$ = new TypesList(v);
         }
 		|	Exp COMMA ExpList
 		{
             int type = static_cast<Type*>($1)->type;
-            $$ = new TypesList({type});
+            vector<int> v1;
+            v1.push_back(type);
+            $$ = new TypesList(v1);
             vector<int>& v = static_cast<TypesList*>($$)->params;
             vector<int>& exp = static_cast<TypesList*>($3)->params;
             v.insert(v.end(), exp.begin(), exp.end());

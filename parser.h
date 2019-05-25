@@ -14,7 +14,8 @@
 #include "parser.tab.hpp"
 #include <vector>
 #include <stack>
-#include <unordered_map>
+#include <map>
+#include <set>
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -69,25 +70,25 @@ struct func_data {
     tokens ret_type;
 };
 
-typedef unordered_map<string, var_data> ScopeTable;
-typedef unordered_map<string, func_data> FuncTable;
+typedef map<string, var_data> ScopeTable;
+typedef map<string, func_data> FuncTable;
 
 vector<string> func_names;
 vector<ScopeTable> scopes_tables;
 stack<int> offsets_stack;
 FuncTable func_table;
 
-unordered_map<int, string> type_to_string;
+map<int, string> type_to_string;
 
 void initizlize_type_to_string(){
-    type_to_string.insert({VOID, "VOID"});
-    type_to_string.insert({INT, "INT"});
-    type_to_string.insert({BOOL, "BOOL"});
-    type_to_string.insert({BYTE, "BYTE"});
-    type_to_string.insert({STRING, "STRING"});
+    type_to_string.insert(pair<int, string>(VOID, "VOID"));
+    type_to_string.insert(pair<int, string>(INT, "INT"));
+    type_to_string.insert(pair<int, string>(BOOL, "BOOL"));
+    type_to_string.insert(pair<int, string>(BYTE, "BYTE"));
+    type_to_string.insert(pair<int, string>(STRING, "STRING"));
 }
 
-unordered_set<int> int_convertables = {INT, BYTE, NUM};
+set<int> int_convertables;
 
 bool compare_types(int assignee, int rvalue) {
     if(assignee == rvalue || (assignee == INT && (int_convertables.find(rvalue) != int_convertables.end()))) {
@@ -132,7 +133,8 @@ void exit_scope(bool is_func, stack_data* name, stack_data* precond_num) {
     vector<pair<string, var_data> > vars_pos;
     vector<pair<string, var_data> > vars_neg;
 
-    for(pair<string, var_data> d : vars_to_print){
+    for (map<string, var_data>::iterator i = vars_to_print.begin(); i != vars_to_print.end(); ++i) {
+        pair<string, var_data> d = *i;
         var_data data = d.second;
         if(data.offset >= 0)
             vars_pos.push_back(d);
@@ -143,11 +145,13 @@ void exit_scope(bool is_func, stack_data* name, stack_data* precond_num) {
     sort(vars_pos.begin(), vars_pos.end(), var_comp);
     sort(vars_neg.begin(), vars_neg.end(), var_comp_rev);
 
-    for(auto& i : vars_neg){
+    for(vector<pair<string, var_data> >::iterator j = vars_neg.begin(); j != vars_neg.end(); ++j){
+        pair<string, var_data> i = *j;
         printID(i.first, i.second.offset, type_to_string[i.second.type]);
     }
 
-    for(auto& i : vars_pos){
+    for(vector<pair<string, var_data> >::iterator j = vars_pos.begin(); j != vars_pos.end(); ++j){
+        pair<string, var_data> i = *j;
         printID(i.first, i.second.offset, type_to_string[i.second.type]);
     }
 
@@ -161,7 +165,8 @@ void new_scope() {
 }
 
 bool contains_var(string &name) {
-    for (ScopeTable &t : scopes_tables) {
+    for (vector<ScopeTable>::iterator i = scopes_tables.begin(); i != scopes_tables.end(); ++i) {
+        ScopeTable &t = *i;
         if (t.find(name) != t.end()) {
             return true;
         }
@@ -176,11 +181,12 @@ void exit_last_scope(){
         func_data data = func_table[name];
         string ret_type = type_to_string[data.ret_type];
         vector<string> args;
-        for(int type : data.param_types){
+        for(vector<int>::iterator i = data.param_types.begin(); i != data.param_types.end(); ++i){
+            int type = *i;
             args.push_back(type_to_string[type]);
         }
         string s = makeFunctionType(ret_type, args);
-        string to_print = name + " " + s + " " + to_string(0);
+        string to_print = name + " " + s + " " + "0";
         cout << to_print << endl;
     }
 }
@@ -202,7 +208,7 @@ bool addVariable(stack_data *varType, stack_data *varId, bool isFunctionParamete
         offset = &offsets_stack.top();
     var_data sd = {type, *offset};
     ScopeTable &t = scopes_tables.back();
-    t.insert({name, sd});
+    t.insert(pair<string, var_data>(name, sd));
     if (isFunctionParameter)
         (*offset)--;
     else
@@ -215,7 +221,7 @@ void add_func(vector<int> param_types, tokens ret_type, const string& name) {
     if (func_table.find(name) != func_table.end()) {
         WRAP_ERROR(errorDef(yylineno, name));
     }
-    func_table.insert({name, fd});
+    func_table.insert(pair<string, func_data>(name, fd));
     func_names.push_back(name);
 }
 
@@ -279,7 +285,7 @@ void verifyVariableDefined(stack_data * stackData) {
 
 void verifyType(stack_data *stackData, int t) {
     Type* type = dynamic_cast<Type*>(stackData);
-    if (type == nullptr || !compare_types(type->type, t)) {
+    if (type == NULL || !compare_types(type->type, t)) {
         WRAP_ERROR(errorMismatch(yylineno));
     }
 }
@@ -287,7 +293,7 @@ void verifyType(stack_data *stackData, int t) {
 void verifyByteSize(stack_data* stackData) {
     Id* num = dynamic_cast<Id*>(stackData);
     int value = stoi(num->id);
-    if (num == nullptr || value > 255 || value < 0) {
+    if (num == NULL || value > 255 || value < 0) {
         WRAP_ERROR(errorByteTooLarge(yylineno, num->id));
     }
 }
@@ -321,7 +327,7 @@ int verifyTypes(stack_data *stackData, int num, ...) {
     va_start(arguments, num);           // Initializing arguments to store all values after num
     for ( int x = 0; x < num; x++) {
         int t = va_arg(arguments, int);
-        if (type != nullptr && compare_types(type->type,t) ) {
+        if (type != NULL && compare_types(type->type,t) ) {
             return t;
         }
     }
@@ -366,15 +372,15 @@ void yyerror(const char * err) {
     WRAP_ERROR(errorSyn(yylineno));
 }
 
-bool all_ret_same(const vector<int>& ret_params){
-    int last = ret_params[0];
-
-    FOR_EACH_CONST(iter, vector<int>, ret_params) {
-        if(!compare_types(last, *iter))
-            return false;
-    }
-    return true;
-}
+//bool all_ret_same(const vector<int>& ret_params){
+//    int last = ret_params[0];
+//
+//    FOR_EACH_CONST(iter, vector<int>, ret_params) {
+//        if(!compare_types(last, *iter))
+//            return false;
+//    }
+//    return true;
+//}
 
 int get_ret_from_statements(TypesList* ret_types){
     if (ret_types == NULL){
@@ -395,6 +401,10 @@ void concatenate_params(vector<int>& v, TypesList* t1, TypesList* t2){
 }
 
 int main(){
+    int_convertables.insert(INT);
+    int_convertables.insert(BYTE);
+    int_convertables.insert(NUM);
+
     func_param_offset = -1;
     offsets_stack.push(0);
 

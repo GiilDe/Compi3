@@ -69,11 +69,6 @@ FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE 
             } Statements RBRACE
             {
                 TypesList* ret_types = dynamic_cast<TypesList*>($10);
-                if(ret_types != NULL){
-                    if(!all_ret_same(ret_types->params)){
-                        WRAP_ERROR(errorMismatch(yylineno));
-                    }
-                }
                 int ret_type_from_statement = get_ret_from_statements(ret_types);
                 int ret_type_num = static_cast<Type*>($1)->type;
                 tokens ret_type = static_cast<tokens>(ret_type_num);

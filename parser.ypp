@@ -174,28 +174,28 @@ Statement: Open_statement
            }
          ;
 
-Open_statement: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Simple_statement
+Open_statement: If_Start Simple_statement
                 {
-                    TypesList* t = dynamic_cast<TypesList*>($6);
+                    TypesList* t = dynamic_cast<TypesList*>($2);
                     if(t != NULL){
                         $$ = new TypesList(t->params);
                     }
                     exit_scope(false, NULL, NULL);
                 }
 
-              | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Open_statement
+              | If_Start Open_statement
                 {
-                    TypesList* t = dynamic_cast<TypesList*>($6);
+                    TypesList* t = dynamic_cast<TypesList*>($2);
                     if(t != NULL){
                         $$ = new TypesList(t->params);
                     }
                     exit_scope(false, NULL, NULL);
                 }
 
-              | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Closed_statement {exit_scope(false, NULL, NULL);} ELSE {new_scope();} Open_statement
+              | If_Else Open_statement
                 {
-                    TypesList* t1 = dynamic_cast<TypesList*>($6);
-                    TypesList* t2 = dynamic_cast<TypesList*>($10);
+                    TypesList* t1 = dynamic_cast<TypesList*>($1);
+                    TypesList* t2 = dynamic_cast<TypesList*>($2);
                     if(t1 != NULL || t2 != NULL){
                         $$ = new TypesList();
                         concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);
@@ -203,9 +203,10 @@ Open_statement: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Simple
                     exit_scope(false, NULL, NULL);
                 }
 
-              | WHILE {in_while = true;} LPAREN Exp RPAREN {verifyType($4, BOOL); new_scope(); in_while = false;} Open_statement
+              | While_Start Open_statement
                 {
-                    TypesList* t = dynamic_cast<TypesList*>($7);
+                    in_while = false;
+                    TypesList* t = dynamic_cast<TypesList*>($2);
                     if(t != NULL){
                         $$ = new TypesList(t->params);
                     }
@@ -214,10 +215,10 @@ Open_statement: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Simple
               ;
 
 Closed_statement: Simple_statement
-                | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Closed_statement {exit_scope(false, NULL, NULL);} ELSE {new_scope();} Closed_statement
+                | If_Else Closed_statement
                   {
-                    TypesList* t1 = dynamic_cast<TypesList*>($6);
-                    TypesList* t2 = dynamic_cast<TypesList*>($10);
+                    TypesList* t1 = dynamic_cast<TypesList*>($1);
+                    TypesList* t2 = dynamic_cast<TypesList*>($2);
                     if(t1 != NULL || t2 != NULL){
                         $$ = new TypesList();
                         concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);
@@ -225,9 +226,10 @@ Closed_statement: Simple_statement
                     exit_scope(false, NULL, NULL);
                   }
 
-                | WHILE LPAREN {in_while = true;} Exp RPAREN {verifyType($4, BOOL); new_scope(); in_while = false;} Closed_statement
+                | While_Start Closed_statement
                   {
-                    TypesList* t1 = dynamic_cast<TypesList*>($7);
+                    in_while = false;
+                    TypesList* t1 = dynamic_cast<TypesList*>($2);
                     if(t1 != NULL){
                          $$ = new TypesList(t1->params);
                     }
@@ -386,5 +388,12 @@ Exp	:	LPAREN Exp RPAREN
 	    $$ = new Type(BOOL);
 	}
 	;
+
+If_Start: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();}
+
+If_Else: If_Start Closed_statement {exit_scope(false, NULL, NULL);} ELSE {new_scope();}
+{ $$ = $2; }
+
+While_Start: WHILE LPAREN Exp RPAREN {verifyType($4, BOOL); new_scope(); in_while = true;}
 
 %%

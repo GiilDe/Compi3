@@ -48,6 +48,8 @@ extern int yyparse();
 extern int yylineno;
 extern int yydebug;
 
+int in_while = 0;
+int func_param_offset;
 
 struct var_data {
     tokens type;
@@ -98,10 +100,6 @@ bool compare_types(vector<int>& v1, vector<int>& v2){
     }
     return true;
 }
-
-bool in_while = false;
-
-int func_param_offset;
 
 bool var_comp(const pair<string, var_data>& v1, const pair<string, var_data>& v2) {
     var_data d1 = v1.second;
@@ -177,7 +175,7 @@ void exit_last_scope(vector<int>& precond_nums){
             args.push_back(type_to_string[type]);
         }
         string s = makeFunctionType(ret_type, args);
-        string to_print = name + s + " " + to_string(num);
+        string to_print = name + " " + s + " " + to_string(num);
         cout << to_print << endl;
     }
 }
@@ -310,6 +308,18 @@ int verifyTypes(stack_data *stackData, int num, ...) {
     WRAP_ERROR(errorMismatch(yylineno));
     // Unreachable
     return -1;
+}
+
+void verifyBreak() {
+    if (!in_while) {
+        WRAP_ERROR(errorUnexpectedBreak(yylineno));
+    }
+}
+
+void verifyContinue() {
+    if (!in_while) {
+        WRAP_ERROR(errorUnexpectedContinue(yylineno));
+    }
 }
 
 void verifyMainFunction() {

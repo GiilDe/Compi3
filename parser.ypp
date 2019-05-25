@@ -192,10 +192,10 @@ Open_statement: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Simple
                     exit_scope(false, NULL, NULL);
                 }
 
-              | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Closed_statement {exit_scope(false, NULL, NULL); new_scope();} ELSE Open_statement
+              | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Closed_statement {exit_scope(false, NULL, NULL);} ELSE {new_scope();} Open_statement
                 {
                     TypesList* t1 = dynamic_cast<TypesList*>($6);
-                    TypesList* t2 = dynamic_cast<TypesList*>($9);
+                    TypesList* t2 = dynamic_cast<TypesList*>($10);
                     if(t1 != NULL || t2 != NULL){
                         $$ = new TypesList();
                         concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);
@@ -214,10 +214,10 @@ Open_statement: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Simple
               ;
 
 Closed_statement: Simple_statement
-                | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Closed_statement {exit_scope(false, NULL, NULL); new_scope();} ELSE Closed_statement
+                | IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();} Closed_statement {exit_scope(false, NULL, NULL);} ELSE {new_scope();} Closed_statement
                   {
                     TypesList* t1 = dynamic_cast<TypesList*>($6);
-                    TypesList* t2 = dynamic_cast<TypesList*>($9);
+                    TypesList* t2 = dynamic_cast<TypesList*>($10);
                     if(t1 != NULL || t2 != NULL){
                         $$ = new TypesList();
                         concatenate_params(dynamic_cast<TypesList*>($$)->params, t1, t2);

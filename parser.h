@@ -65,20 +65,13 @@ stack<int> offsets_stack;
 FuncTable func_table;
 
 unordered_map<int, string> type_to_string;
-unordered_map<tokens, string> type_to_string_token;
 
 void initizlize_type_to_string(){
-    type_to_string.insert({static_cast<int>(VOID), "VOID"});
-    type_to_string.insert({static_cast<int>(INT), "INT"});
-    type_to_string.insert({static_cast<int>(BOOL), "BOOL"});
-    type_to_string.insert({static_cast<int>(BYTE), "BYTE"});
-    type_to_string.insert({static_cast<int>(STRING), "STRING"});
-
-
-    type_to_string_token.insert({VOID, "VOID"});
-    type_to_string_token.insert({INT, "INT"});
-    type_to_string_token.insert({BOOL, "BOOL"});
-    type_to_string_token.insert({BYTE, "BYTE"});
+    type_to_string.insert({VOID, "VOID"});
+    type_to_string.insert({INT, "INT"});
+    type_to_string.insert({BOOL, "BOOL"});
+    type_to_string.insert({BYTE, "BYTE"});
+    type_to_string.insert({STRING, "STRING"});
 }
 
 unordered_set<int> int_convertables = {259, 260, 285};
@@ -146,11 +139,11 @@ void exit_scope(bool is_func, stack_data* name, stack_data* precond_num) {
     sort(vars_neg.begin(), vars_neg.end(), var_comp_rev);
 
     for(auto& i : vars_neg){
-        printID(i.first, i.second.offset, type_to_string_token[i.second.type]);
+        printID(i.first, i.second.offset, type_to_string[i.second.type]);
     }
 
     for(auto& i : vars_pos){
-        printID(i.first, i.second.offset, type_to_string_token[i.second.type]);
+        printID(i.first, i.second.offset, type_to_string[i.second.type]);
     }
 
     scopes_tables.pop_back();
@@ -177,7 +170,7 @@ void exit_last_scope(vector<int>& precond_nums){
         string& name = func_names[i];
         int num = precond_nums[i];
         func_data data = func_table[name];
-        string ret_type = type_to_string_token[data.ret_type];
+        string ret_type = type_to_string[data.ret_type];
         vector<string> args;
         for(int type : data.param_types){
             args.push_back(type_to_string[type]);

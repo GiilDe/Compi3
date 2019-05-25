@@ -67,7 +67,8 @@
      BINOP = 283,
      ID = 284,
      NUM = 285,
-     STRING = 286
+     STRING = 286,
+     EF = 287
    };
 #endif
 /* Tokens.  */
@@ -100,6 +101,7 @@
 #define ID 284
 #define NUM 285
 #define STRING 286
+#define EF 287
 
 
 

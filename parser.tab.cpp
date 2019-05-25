@@ -94,7 +94,8 @@
      BINOP = 283,
      ID = 284,
      NUM = 285,
-     STRING = 286
+     STRING = 286,
+     EF = 287
    };
 #endif
 /* Tokens.  */
@@ -127,6 +128,7 @@
 #define ID 284
 #define NUM 285
 #define STRING 286
+#define EF 287
 
 
 
@@ -168,7 +170,7 @@ typedef int YYSTYPE;
 
 
 /* Line 216 of yacc.c.  */
-#line 172 "/Users/miki/Desktop/Compilation/hw3/cmake-build-debug/parser.tab.cpp"
+#line 174 "/Users/miki/Desktop/Compilation/hw3/cmake-build-debug/parser.tab.cpp"
 
 #ifdef short
 # undef short
@@ -383,20 +385,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  10
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   239
+#define YYLAST   241
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  32
+#define YYNTOKENS  33
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  26
+#define YYNNTS  34
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  62
+#define YYNRULES  70
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  129
+#define YYNSTATES  132
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   286
+#define YYMAXUTOK   287
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -432,7 +434,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29,    30,    31
+      25,    26,    27,    28,    29,    30,    31,    32
 };
 
 #if YYDEBUG
@@ -441,50 +443,53 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     5,     6,     9,    10,    21,    23,    25,
-      26,    28,    30,    34,    37,    38,    41,    46,    48,    51,
-      53,    55,    61,    62,    69,    77,    78,    79,    87,    89,
-      97,    98,    99,   107,   108,   113,   117,   123,   128,   131,
-     134,   138,   141,   144,   149,   153,   155,   159,   161,   163,
-     165,   169,   173,   175,   177,   179,   182,   184,   186,   188,
-     191,   195,   199
+      26,    28,    30,    34,    37,    38,    41,    42,    48,    50,
+      53,    55,    57,    58,    65,    66,    73,    74,    75,    76,
+      87,    88,    89,    97,    99,   100,   101,   102,   113,   114,
+     115,   123,   124,   129,   133,   139,   144,   147,   150,   154,
+     157,   160,   165,   169,   171,   175,   177,   179,   181,   185,
+     189,   191,   193,   195,   198,   200,   202,   204,   207,   211,
+     215
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      33,     0,    -1,    34,    -1,    -1,    35,    34,    -1,    -1,
-      37,    29,    22,    36,    38,    23,    41,    24,    43,    25,
-      -1,    56,    -1,     3,    -1,    -1,    39,    -1,    40,    -1,
-      40,    21,    39,    -1,    56,    29,    -1,    -1,    41,    42,
-      -1,    19,    22,    57,    23,    -1,    44,    -1,    43,    44,
-      -1,    45,    -1,    49,    -1,    14,    22,    57,    23,    52,
-      -1,    -1,    14,    46,    22,    57,    23,    45,    -1,    14,
-      22,    57,    23,    49,    15,    45,    -1,    -1,    -1,    16,
-      47,    22,    57,    23,    48,    45,    -1,    52,    -1,    14,
-      22,    57,    23,    49,    15,    49,    -1,    -1,    -1,    16,
-      22,    50,    57,    23,    51,    49,    -1,    -1,    24,    53,
-      43,    25,    -1,    56,    29,    20,    -1,    56,    29,    26,
-      57,    20,    -1,    29,    26,    57,    20,    -1,    54,    20,
-      -1,    13,    20,    -1,    13,    57,    20,    -1,    17,    20,
-      -1,    18,    20,    -1,    29,    22,    55,    23,    -1,    29,
-      22,    23,    -1,    57,    -1,    57,    21,    55,    -1,     4,
-      -1,     5,    -1,     7,    -1,    22,    57,    23,    -1,    57,
-      28,    57,    -1,    29,    -1,    54,    -1,    30,    -1,    30,
-       6,    -1,    31,    -1,    11,    -1,    12,    -1,    10,    57,
-      -1,    57,     9,    57,    -1,    57,     8,    57,    -1,    57,
-      27,    57,    -1
+      34,     0,    -1,    35,    -1,    -1,    36,    35,    -1,    -1,
+      38,    29,    22,    37,    39,    23,    42,    24,    45,    25,
+      -1,    65,    -1,     3,    -1,    -1,    40,    -1,    41,    -1,
+      41,    21,    40,    -1,    65,    29,    -1,    -1,    42,    43,
+      -1,    -1,    19,    22,    66,    44,    23,    -1,    46,    -1,
+      45,    46,    -1,    47,    -1,    55,    -1,    -1,    14,    22,
+      66,    23,    48,    61,    -1,    -1,    14,    22,    66,    23,
+      49,    47,    -1,    -1,    -1,    -1,    14,    22,    66,    23,
+      50,    55,    51,    15,    52,    47,    -1,    -1,    -1,    16,
+      53,    22,    66,    23,    54,    47,    -1,    61,    -1,    -1,
+      -1,    -1,    14,    22,    66,    23,    56,    55,    57,    15,
+      58,    55,    -1,    -1,    -1,    16,    22,    59,    66,    23,
+      60,    55,    -1,    -1,    24,    62,    45,    25,    -1,    65,
+      29,    20,    -1,    65,    29,    26,    66,    20,    -1,    29,
+      26,    66,    20,    -1,    63,    20,    -1,    13,    20,    -1,
+      13,    66,    20,    -1,    17,    20,    -1,    18,    20,    -1,
+      29,    22,    64,    23,    -1,    29,    22,    23,    -1,    66,
+      -1,    66,    21,    64,    -1,     4,    -1,     5,    -1,     7,
+      -1,    22,    66,    23,    -1,    66,    28,    66,    -1,    29,
+      -1,    63,    -1,    30,    -1,    30,     6,    -1,    31,    -1,
+      11,    -1,    12,    -1,    10,    66,    -1,    66,     9,    66,
+      -1,    66,     8,    66,    -1,    66,    27,    66,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,    37,    37,    41,    42,    45,    45,    56,    59,    64,
-      66,    75,    81,    91,    97,    98,   101,   105,   106,   109,
-     110,   113,   116,   116,   119,   122,   122,   122,   126,   127,
-     130,   130,   130,   134,   134,   136,   139,   142,   143,   144,
-     148,   152,   158,   166,   169,   173,   174,   177,   180,   183,
-     187,   190,   200,   206,   207,   210,   216,   219,   222,   225,
-     230,   236,   242
+       0,    38,    38,    48,    51,    65,    65,    89,    92,    97,
+      99,   108,   114,   124,   131,   132,   139,   139,   143,   150,
+     161,   168,   177,   177,   186,   186,   195,   195,   195,   195,
+     206,   206,   206,   216,   217,   217,   217,   217,   228,   228,
+     228,   238,   238,   247,   250,   254,   255,   256,   262,   268,
+     275,   283,   290,   299,   305,   315,   318,   321,   325,   328,
+     338,   344,   347,   350,   356,   359,   362,   365,   370,   376,
+     382
 };
 #endif
 
@@ -496,12 +501,12 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "VOID", "INT", "BYTE", "B", "BOOL", "OR",
   "AND", "NOT", "TRUE", "FALSE", "RETURN", "IF", "ELSE", "WHILE", "BREAK",
   "CONTINUE", "PRECOND", "SC", "COMMA", "LPAREN", "RPAREN", "LBRACE",
-  "RBRACE", "ASSIGN", "RELOP", "BINOP", "ID", "NUM", "STRING", "$accept",
-  "Program", "Funcs", "FuncDecl", "@1", "RetType", "Formals",
-  "FormalsList", "FormalDecl", "PreConditions", "PreCondition",
-  "Statements", "Statement", "Open_statement", "@2", "@3", "@4",
-  "Closed_statement", "@5", "@6", "Simple_statement", "@7", "Call",
-  "ExpList", "Type", "Exp", 0
+  "RBRACE", "ASSIGN", "RELOP", "BINOP", "ID", "NUM", "STRING", "EF",
+  "$accept", "Program", "Funcs", "FuncDecl", "@1", "RetType", "Formals",
+  "FormalsList", "FormalDecl", "PreConditions", "PreCondition", "@2",
+  "Statements", "Statement", "Open_statement", "@3", "@4", "@5", "@6",
+  "@7", "@8", "@9", "Closed_statement", "@10", "@11", "@12", "@13", "@14",
+  "Simple_statement", "@15", "Call", "ExpList", "Type", "Exp", 0
 };
 #endif
 
@@ -513,32 +518,34 @@ static const yytype_uint16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286
+     285,   286,   287
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    32,    33,    34,    34,    36,    35,    37,    37,    38,
-      38,    39,    39,    40,    41,    41,    42,    43,    43,    44,
-      44,    45,    46,    45,    45,    47,    48,    45,    49,    49,
-      50,    51,    49,    53,    52,    52,    52,    52,    52,    52,
-      52,    52,    52,    54,    54,    55,    55,    56,    56,    56,
-      57,    57,    57,    57,    57,    57,    57,    57,    57,    57,
-      57,    57,    57
+       0,    33,    34,    35,    35,    37,    36,    38,    38,    39,
+      39,    40,    40,    41,    42,    42,    44,    43,    45,    45,
+      46,    46,    48,    47,    49,    47,    50,    51,    52,    47,
+      53,    54,    47,    55,    56,    57,    58,    55,    59,    60,
+      55,    62,    61,    61,    61,    61,    61,    61,    61,    61,
+      61,    63,    63,    64,    64,    65,    65,    65,    66,    66,
+      66,    66,    66,    66,    66,    66,    66,    66,    66,    66,
+      66
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     0,     2,     0,    10,     1,     1,     0,
-       1,     1,     3,     2,     0,     2,     4,     1,     2,     1,
-       1,     5,     0,     6,     7,     0,     0,     7,     1,     7,
-       0,     0,     7,     0,     4,     3,     5,     4,     2,     2,
-       3,     2,     2,     4,     3,     1,     3,     1,     1,     1,
-       3,     3,     1,     1,     1,     2,     1,     1,     1,     2,
-       3,     3,     3
+       1,     1,     3,     2,     0,     2,     0,     5,     1,     2,
+       1,     1,     0,     6,     0,     6,     0,     0,     0,    10,
+       0,     0,     7,     1,     0,     0,     0,    10,     0,     0,
+       7,     0,     4,     3,     5,     4,     2,     2,     3,     2,
+       2,     4,     3,     1,     3,     1,     1,     1,     3,     3,
+       1,     1,     1,     2,     1,     1,     1,     2,     3,     3,
+       3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -546,135 +553,142 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       3,     8,    47,    48,    49,     0,     2,     3,     0,     7,
+       3,     8,    55,    56,    57,     0,     2,     3,     0,     7,
        1,     4,     0,     5,     9,     0,    10,    11,     0,    14,
        0,    13,     0,    12,     0,     0,    15,     0,     0,     0,
-       0,     0,     0,    33,     0,     0,    17,    19,    20,    28,
-       0,     0,     0,    57,    58,     0,    52,    54,    56,    53,
-       0,    39,     0,     0,     0,    30,     0,    41,    42,     0,
-       0,     0,     6,    18,    38,     0,    59,     0,    55,     0,
-       0,    16,     0,     0,    40,     0,     0,     0,     0,     0,
-      44,     0,    45,     0,    35,     0,    50,    61,    60,    62,
-      51,     0,     0,     0,     0,    34,    43,     0,    37,     0,
-       0,     0,     0,    21,     0,    31,    26,    46,    36,     0,
-       0,     0,    25,    23,     0,     0,     0,    24,    29,     0,
-      32,    27,     0,     0,     0,     0,     0,     0,     0
+       0,     0,     0,    41,     0,     0,    18,    20,    21,    33,
+       0,     0,     0,    65,    66,     0,    60,    62,    64,    61,
+      16,    47,     0,     0,    38,     0,    49,    50,     0,     0,
+       0,     6,    19,    46,     0,    67,     0,    63,     0,     0,
+       0,     0,     0,    48,     0,     0,     0,     0,    52,     0,
+      53,     0,    43,     0,    58,    69,    68,    70,    59,    17,
+      22,     0,     0,    42,    51,     0,    45,     0,     0,     0,
+       0,     0,    39,    31,    54,    44,    23,     0,    30,    25,
+       0,     0,    27,    35,     0,     0,     0,     0,     0,     0,
+      40,    32,     0,     0,    28,    36,    22,    34,     0,     0,
+      29,    37
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
-static const yytype_int8 yydefgoto[] =
+static const yytype_int16 yydefgoto[] =
 {
       -1,     5,     6,     7,    14,     8,    15,    16,    17,    22,
-      26,    35,    36,    37,    54,    56,   115,    38,    77,   114,
-      39,    59,    49,    81,    41,    82
+      26,    72,    35,    36,    37,    98,    99,   100,   118,   128,
+      55,   115,    38,   101,   119,   129,    75,   114,    39,    58,
+      49,    79,    41,    80
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -99
+#define YYPACT_NINF -95
 static const yytype_int16 yypact[] =
 {
-      67,   -99,   -99,   -99,   -99,     8,   -99,    67,    -8,   -99,
-     -99,   -99,     4,   -99,   228,    15,   -99,    10,     0,   -99,
-     228,   -99,    -1,   -99,    23,   100,   -99,   155,   128,    27,
-      55,    37,    53,   -99,   -15,    51,   -99,   -99,   -99,   -99,
-      62,    57,   155,   -99,   -99,   155,    72,    78,   -99,   -99,
-     145,   -99,     5,   155,    84,   -99,    88,   -99,   -99,   100,
-     133,   155,   -99,   -99,   -99,   -11,    35,   152,   -99,   155,
-     155,   -99,   155,   155,   -99,   173,   155,   155,   155,    74,
-     -99,    73,   162,    33,   -99,   155,   -99,    99,    35,    83,
-     -99,   118,   179,   185,   195,   -99,   -99,   155,   -99,   189,
-      90,    55,   104,   105,     6,   -99,   -99,   -99,   -99,   155,
-     100,   106,   -99,   -99,   118,     6,   202,   -99,   -99,   155,
-     -99,   -99,   118,   211,   115,   118,   118,   122,     6
+      59,   -95,   -95,   -95,   -95,     5,   -95,    59,   -14,   -95,
+     -95,   -95,     3,   -95,    34,    33,   -95,    39,    -3,   -95,
+      34,   -95,    -2,   -95,    43,   104,   -95,   152,     1,    47,
+      52,    57,    60,   -95,    -8,    54,   -95,   -95,   -95,   -95,
+      64,    58,   152,   -95,   -95,   152,    80,    97,   -95,   -95,
+     213,   -95,    20,   152,   -95,    85,   -95,   -95,   104,   146,
+     152,   -95,   -95,   -95,   -17,    65,    73,   -95,   152,   152,
+     152,   152,    90,   -95,   144,   152,   152,    81,   -95,    92,
+     170,   176,   -95,   152,   -95,    27,    65,    88,   -95,   -95,
+      37,   178,   184,   -95,   -95,   152,   -95,   200,   137,    98,
+     122,   122,   -95,   -95,   -95,   -95,   -95,   102,   -95,   -95,
+     103,    52,   -95,   -95,   122,    98,   152,   152,   116,   117,
+     -95,   -95,   191,   207,   -95,   -95,    37,   -95,    98,   122,
+     -95,   -95
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -99,   -99,   114,   -99,   -99,   -99,   -99,   113,   -99,   -99,
-     -99,    82,   -31,   -98,   -99,   -99,   -99,   -86,   -99,   -99,
-     -88,   -99,   -25,    49,    95,   -26
+     -95,   -95,   112,   -95,   -95,   -95,   -95,   114,   -95,   -95,
+     -95,   -95,    87,   -31,   -91,   -95,   -95,   -95,   -95,   -95,
+     -95,   -95,   -94,   -95,   -95,   -95,   -95,   -95,    49,   -95,
+     -25,    53,   123,   -26
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
-#define YYTABLE_NINF -29
+#define YYTABLE_NINF -25
 static const yytype_int16 yytable[] =
 {
-      40,    50,    52,   103,    63,   102,   113,    60,    10,    84,
-      40,    61,   117,    69,    70,    85,    66,   121,    24,    67,
-     111,    12,   112,    25,   118,    74,    13,    75,   120,    21,
-     117,    20,    72,    73,    40,    83,   124,   103,    19,   127,
-     118,    69,    70,    87,    88,    27,    89,    90,    63,    53,
-      92,    93,    94,    98,    40,     2,     3,    57,     4,    99,
-      72,    73,    72,    73,    28,    29,    40,    30,    31,    32,
-       1,     2,     3,    58,     4,    33,    62,    55,     2,     3,
-      34,     4,    64,   116,    68,    40,    65,    28,    29,    40,
-      30,    31,    32,   123,    60,     9,    96,    40,    33,    95,
-      40,    40,     9,    34,     2,     3,    76,     4,    70,    18,
-      78,    73,   109,    28,    29,    18,    30,    31,    32,   110,
-     -28,    11,     2,     3,    33,     4,    72,    73,   119,    34,
-     126,    28,   100,    23,   101,    31,    32,   128,    42,    43,
-      44,    79,    33,    42,    43,    44,   107,    34,    51,     0,
-      45,     0,     0,    69,    70,    45,    80,    46,    47,    48,
-      69,    70,    46,    47,    48,    42,    43,    44,    71,     0,
-      69,    70,    72,    73,     0,    86,     0,    45,     0,    72,
-      73,    69,    70,    97,    46,    47,    48,    69,    70,    72,
-      73,     0,     0,    69,    70,     0,    91,    69,    70,     0,
-      72,    73,   104,    69,    70,     0,    72,    73,   105,   108,
-      69,    70,    72,    73,     0,     0,    72,    73,   106,    69,
-      70,     0,    72,    73,     0,   122,     0,     0,     0,    72,
-      73,     0,     2,     3,   125,     4,     0,     0,    72,    73
+      40,    50,    52,    82,    62,    10,   112,   113,   109,    83,
+      40,    42,    43,    44,    59,    12,    65,    24,    60,    66,
+     120,    51,    25,    45,   121,    13,    21,    74,    68,    69,
+      46,    47,    48,    40,    81,   131,    69,   130,     2,     3,
+      73,     4,    85,    86,    87,    88,    62,    70,    71,    91,
+      92,   -24,    40,   -24,    70,    71,    19,    97,     2,     3,
+      20,     4,     1,     2,     3,    27,     4,    28,    29,    53,
+      30,    31,    32,    40,    54,    40,    40,    56,    33,    61,
+      57,    68,    69,    34,    63,     2,     3,    64,     4,    40,
+     122,   123,    70,    71,    28,    29,    84,    30,    31,    32,
+      70,    71,    59,    67,    40,    33,    93,    76,     2,     3,
+      34,     4,   107,    89,   108,    94,    71,    28,    29,    11,
+      30,    31,    32,     9,   116,   117,     2,     3,    33,     4,
+       9,   124,   125,    34,    23,    28,   110,    18,   111,    31,
+      32,     2,     3,    18,     4,    77,    33,   106,   104,     0,
+      28,    34,    68,    69,    31,    32,    42,    43,    44,     0,
+       0,    33,    42,    43,    44,     0,    34,    90,    45,    78,
+       0,    70,    71,     0,    45,    46,    47,    48,    68,    69,
+       0,    46,    47,    48,    68,    69,    68,    69,     0,     0,
+       0,    95,    68,    69,     0,     0,    96,    70,    71,    68,
+      69,   102,     0,    70,    71,    70,    71,   103,    68,    69,
+       0,    70,    71,     0,   126,    68,    69,     0,    70,    71,
+     105,    68,    69,     0,     0,     0,     0,    70,    71,     0,
+     127,     0,     0,     0,    70,    71,     0,     0,     0,     0,
+      70,    71
 };
 
 static const yytype_int16 yycheck[] =
 {
-      25,    27,    28,    91,    35,    91,   104,    22,     0,    20,
-      35,    26,   110,     8,     9,    26,    42,   115,    19,    45,
-      14,    29,    16,    24,   110,    20,    22,    53,   114,    29,
-     128,    21,    27,    28,    59,    61,   122,   125,    23,   125,
-     126,     8,     9,    69,    70,    22,    72,    73,    79,    22,
-      76,    77,    78,    20,    79,     4,     5,    20,     7,    85,
-      27,    28,    27,    28,    13,    14,    91,    16,    17,    18,
-       3,     4,     5,    20,     7,    24,    25,    22,     4,     5,
-      29,     7,    20,   109,     6,   110,    29,    13,    14,   114,
-      16,    17,    18,   119,    22,     0,    23,   122,    24,    25,
-     125,   126,     7,    29,     4,     5,    22,     7,     9,    14,
-      22,    28,    22,    13,    14,    20,    16,    17,    18,    15,
-      15,     7,     4,     5,    24,     7,    27,    28,    22,    29,
-      15,    13,    14,    20,    16,    17,    18,    15,    10,    11,
-      12,    59,    24,    10,    11,    12,    97,    29,    20,    -1,
-      22,    -1,    -1,     8,     9,    22,    23,    29,    30,    31,
-       8,     9,    29,    30,    31,    10,    11,    12,    23,    -1,
-       8,     9,    27,    28,    -1,    23,    -1,    22,    -1,    27,
-      28,     8,     9,    21,    29,    30,    31,     8,     9,    27,
-      28,    -1,    -1,     8,     9,    -1,    23,     8,     9,    -1,
-      27,    28,    23,     8,     9,    -1,    27,    28,    23,    20,
-       8,     9,    27,    28,    -1,    -1,    27,    28,    23,     8,
-       9,    -1,    27,    28,    -1,    23,    -1,    -1,    -1,    27,
-      28,    -1,     4,     5,    23,     7,    -1,    -1,    27,    28
+      25,    27,    28,    20,    35,     0,   100,   101,    99,    26,
+      35,    10,    11,    12,    22,    29,    42,    19,    26,    45,
+     114,    20,    24,    22,   115,    22,    29,    53,     8,     9,
+      29,    30,    31,    58,    60,   129,     9,   128,     4,     5,
+      20,     7,    68,    69,    70,    71,    77,    27,    28,    75,
+      76,    14,    77,    16,    27,    28,    23,    83,     4,     5,
+      21,     7,     3,     4,     5,    22,     7,    13,    14,    22,
+      16,    17,    18,    98,    22,   100,   101,    20,    24,    25,
+      20,     8,     9,    29,    20,     4,     5,    29,     7,   114,
+     116,   117,    27,    28,    13,    14,    23,    16,    17,    18,
+      27,    28,    22,     6,   129,    24,    25,    22,     4,     5,
+      29,     7,    14,    23,    16,    23,    28,    13,    14,     7,
+      16,    17,    18,     0,    22,    22,     4,     5,    24,     7,
+       7,    15,    15,    29,    20,    13,    14,    14,    16,    17,
+      18,     4,     5,    20,     7,    58,    24,    98,    95,    -1,
+      13,    29,     8,     9,    17,    18,    10,    11,    12,    -1,
+      -1,    24,    10,    11,    12,    -1,    29,    23,    22,    23,
+      -1,    27,    28,    -1,    22,    29,    30,    31,     8,     9,
+      -1,    29,    30,    31,     8,     9,     8,     9,    -1,    -1,
+      -1,    21,     8,     9,    -1,    -1,    20,    27,    28,     8,
+       9,    23,    -1,    27,    28,    27,    28,    23,     8,     9,
+      -1,    27,    28,    -1,    23,     8,     9,    -1,    27,    28,
+      20,     8,     9,    -1,    -1,    -1,    -1,    27,    28,    -1,
+      23,    -1,    -1,    -1,    27,    28,    -1,    -1,    -1,    -1,
+      27,    28
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     4,     5,     7,    33,    34,    35,    37,    56,
-       0,    34,    29,    22,    36,    38,    39,    40,    56,    23,
-      21,    29,    41,    39,    19,    24,    42,    22,    13,    14,
-      16,    17,    18,    24,    29,    43,    44,    45,    49,    52,
-      54,    56,    10,    11,    12,    22,    29,    30,    31,    54,
-      57,    20,    57,    22,    46,    22,    47,    20,    20,    53,
-      22,    26,    25,    44,    20,    29,    57,    57,     6,     8,
-       9,    23,    27,    28,    20,    57,    22,    50,    22,    43,
-      23,    55,    57,    57,    20,    26,    23,    57,    57,    57,
-      57,    23,    57,    57,    57,    25,    23,    21,    20,    57,
-      14,    16,    49,    52,    23,    23,    23,    55,    20,    22,
-      15,    14,    16,    45,    51,    48,    57,    45,    49,    22,
-      49,    45,    23,    57,    49,    23,    15,    49,    15
+       0,     3,     4,     5,     7,    34,    35,    36,    38,    65,
+       0,    35,    29,    22,    37,    39,    40,    41,    65,    23,
+      21,    29,    42,    40,    19,    24,    43,    22,    13,    14,
+      16,    17,    18,    24,    29,    45,    46,    47,    55,    61,
+      63,    65,    10,    11,    12,    22,    29,    30,    31,    63,
+      66,    20,    66,    22,    22,    53,    20,    20,    62,    22,
+      26,    25,    46,    20,    29,    66,    66,     6,     8,     9,
+      27,    28,    44,    20,    66,    59,    22,    45,    23,    64,
+      66,    66,    20,    26,    23,    66,    66,    66,    66,    23,
+      23,    66,    66,    25,    23,    21,    20,    66,    48,    49,
+      50,    56,    23,    23,    64,    20,    61,    14,    16,    47,
+      14,    16,    55,    55,    60,    54,    22,    22,    51,    57,
+      55,    47,    66,    66,    15,    15,    23,    23,    52,    58,
+      47,    55
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1489,180 +1503,372 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 38 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyMainFunction(); ;}
+#line 39 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+         verifyMainFunction();
+         PrecondList* t = dynamic_cast<PrecondList*>((yyvsp[(1) - (1)]));
+         vector<int>& tv = t->preconditions_nums;
+         exit_last_scope(tv);
+        ;}
+    break;
+
+  case 3:
+#line 48 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+         (yyval) = new PrecondList();
+        ;}
+    break;
+
+  case 4:
+#line 52 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+		 PrecondList* p = dynamic_cast<PrecondList*>((yyvsp[(1) - (2)]));
+		 vector<int>& pv = p->preconditions_nums;
+         (yyval) = new PrecondList();
+         PrecondList* t = dynamic_cast<PrecondList*>((yyval));
+         vector<int>& tv = t->preconditions_nums;
+         tv.insert(tv.end(), pv.begin(), pv.end());
+         PrecondList* p2 = dynamic_cast<PrecondList*>((yyvsp[(2) - (2)]));
+         vector<int>& pv2 = p2->preconditions_nums;
+         tv.insert(tv.end(), pv2.begin(), pv2.end());
+		;}
     break;
 
   case 5:
-#line 45 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 65 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {new_scope();;}
     break;
 
   case 6:
-#line 46 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 66 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
-                tokens ret_type = static_cast<tokens>(static_cast<Type*>((yyvsp[(1) - (10)]))->type);
-                // tokens actual_ret_type = static_cast<tokens>(static_cast<Type*>($8)->type)
-
+                TypesList* ret_types = dynamic_cast<TypesList*>((yyvsp[(9) - (10)]));
+                if(ret_types != NULL){
+                    if(!all_ret_same(ret_types->params)){
+                        WRAP_ERROR(errorMismatch(yylineno));
+                    }
+                }
+                int ret_type_from_statement = get_ret_from_statements(ret_types);
+                int ret_type_num = static_cast<Type*>((yyvsp[(1) - (10)]))->type;
+                tokens ret_type = static_cast<tokens>(ret_type_num);
+                if(!compare_types(ret_type_from_statement, ret_type_num)){
+                    WRAP_ERROR(errorMismatch(yylineno));
+                }
                 string id = static_cast<Id*>((yyvsp[(2) - (10)]))->id;
-                ParamsList* l = static_cast<ParamsList*>((yyvsp[(5) - (10)]));
-                add_func(l->params, ret_type, id);
+                TypesList* func_params = static_cast<TypesList*>((yyvsp[(5) - (10)]));
+                add_func(func_params->params, ret_type, id);
+                int pre_num = static_cast<Preconditions*>((yyvsp[(7) - (10)]))->preconditions_num;
+                exit_scope(true, (yyvsp[(2) - (10)]), (yyvsp[(7) - (10)]));
+
+                (yyval) = new PrecondList(pre_num);
             ;}
     break;
 
   case 7:
-#line 57 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 90 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(static_cast<Type*>((yyvsp[(1) - (1)]))->type); ;}
     break;
 
   case 8:
-#line 60 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 93 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(VOID); ;}
     break;
 
   case 9:
-#line 64 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { (yyval) = new ParamsList(); ;}
+#line 97 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    { (yyval) = new TypesList(); ;}
     break;
 
   case 10:
-#line 67 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 100 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
-            (yyval) = new ParamsList();
-            vector<int>& params = static_cast<ParamsList*>((yyval))->params;
-            vector<int>& params_other = static_cast<ParamsList*>((yyvsp[(1) - (1)]))->params;
+            (yyval) = new TypesList();
+            vector<int>& params = static_cast<TypesList*>((yyval))->params;
+            vector<int>& params_other = static_cast<TypesList*>((yyvsp[(1) - (1)]))->params;
             params = params_other;
 		;}
     break;
 
   case 11:
-#line 76 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 109 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
-                (yyval) = new ParamsList();
+                (yyval) = new TypesList();
                 Type* t = static_cast<Type*>((yyvsp[(1) - (1)]));
-                static_cast<ParamsList*>((yyval))->params.push_back(t->type);
+                static_cast<TypesList*>((yyval))->params.push_back(t->type);
             ;}
     break;
 
   case 12:
-#line 82 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 115 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
-                (yyval) = new ParamsList();
-                vector<int>& params = static_cast<ParamsList*>((yyval))->params;
-                vector<int>& params_other = static_cast<ParamsList*>((yyvsp[(3) - (3)]))->params;
+                (yyval) = new TypesList();
+                vector<int>& params = static_cast<TypesList*>((yyval))->params;
+                vector<int>& params_other = static_cast<TypesList*>((yyvsp[(3) - (3)]))->params;
                 params.push_back(static_cast<Type*>((yyvsp[(1) - (3)]))->type);
                 params.insert(params.end(), params_other.begin(), params_other.end());
 			;}
     break;
 
   case 13:
-#line 92 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 125 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
                 tryAddVariable((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)]), true);
                 (yyval) = new Type(static_cast<Type*>((yyvsp[(1) - (2)]))->type);
 	        ;}
     break;
 
-  case 16:
-#line 102 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyType((yyvsp[(3) - (4)]), BOOL); ;}
-    break;
-
-  case 21:
-#line 114 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyType((yyvsp[(3) - (5)]), BOOL); ;}
-    break;
-
-  case 22:
-#line 116 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    {new_scope();;}
-    break;
-
-  case 23:
-#line 117 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyType((yyvsp[(3) - (6)]), BOOL); ;}
-    break;
-
-  case 24:
-#line 120 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyType((yyvsp[(3) - (7)]), BOOL); ;}
-    break;
-
-  case 25:
-#line 122 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    {in_while = true;;}
-    break;
-
-  case 26:
-#line 122 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    {in_while = false;;}
-    break;
-
-  case 27:
-#line 123 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyType((yyvsp[(3) - (7)]), BOOL); ;}
-    break;
-
-  case 29:
-#line 128 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyType((yyvsp[(3) - (7)]), BOOL); ;}
-    break;
-
-  case 30:
-#line 130 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    {in_while = true;;}
-    break;
-
-  case 31:
-#line 130 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    {in_while = false;;}
-    break;
-
-  case 32:
+  case 14:
 #line 131 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyType((yyvsp[(3) - (7)]), BOOL); ;}
+    {(yyval) = new Preconditions(0);;}
     break;
 
-  case 33:
-#line 134 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    {new_scope();;}
+  case 15:
+#line 133 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+				 int num = static_cast<Preconditions*>((yyvsp[(1) - (2)]))->preconditions_num;
+				 (yyval) = new Preconditions(num + 1);
+				;}
     break;
 
-  case 35:
-#line 137 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { tryAddVariable((yyvsp[(1) - (3)]), (yyvsp[(2) - (3)]), false); ;}
+  case 16:
+#line 139 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {verifyType((yyvsp[(3) - (3)]), BOOL);;}
     break;
 
-  case 36:
+  case 17:
 #line 140 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { tryAddVariable((yyvsp[(1) - (5)]), (yyvsp[(2) - (5)]), false); ;}
+    {(yyval) = new Preconditions(0);;}
     break;
 
-  case 39:
-#line 145 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 18:
+#line 144 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
-
-                ;}
+                TypesList* t = dynamic_cast<TypesList*>((yyvsp[(1) - (1)]));
+                if(t != NULL){
+                    (yyval) = new TypesList(t->params);
+                }
+            ;}
     break;
 
-  case 40:
-#line 149 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 19:
+#line 151 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
-
-                ;}
-    break;
-
-  case 41:
-#line 153 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    {
-                    if (!in_while) {
-                        errorUnexpectedBreak(yylineno);
+                    TypesList* t1 = dynamic_cast<TypesList*>((yyvsp[(1) - (2)]));
+                    TypesList* t2 = dynamic_cast<TypesList*>((yyvsp[(2) - (2)]));
+                    if(t1 != NULL || t2 != NULL){
+                        (yyval) = new TypesList();
+                        concatenate_params(dynamic_cast<TypesList*>((yyval))->params, t1, t2);
                     }
                 ;}
     break;
 
+  case 20:
+#line 162 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                TypesList* t = dynamic_cast<TypesList*>((yyvsp[(1) - (1)]));
+                if(t != NULL){
+                    (yyval) = new TypesList(t->params);
+                }
+           ;}
+    break;
+
+  case 21:
+#line 169 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                TypesList* t = dynamic_cast<TypesList*>((yyvsp[(1) - (1)]));
+                if(t != NULL){
+                    (yyval) = new TypesList(t->params);
+                }
+           ;}
+    break;
+
+  case 22:
+#line 177 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {verifyType((yyvsp[(3) - (4)]), BOOL); new_scope();;}
+    break;
+
+  case 23:
+#line 178 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                    TypesList* t = dynamic_cast<TypesList*>((yyvsp[(6) - (6)]));
+                    if(t != NULL){
+                        (yyval) = new TypesList(t->params);
+                    }
+                    exit_scope(false, NULL, NULL);
+                ;}
+    break;
+
+  case 24:
+#line 186 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {verifyType((yyvsp[(3) - (4)]), BOOL); new_scope();;}
+    break;
+
+  case 25:
+#line 187 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                    TypesList* t = dynamic_cast<TypesList*>((yyvsp[(6) - (6)]));
+                    if(t != NULL){
+                        (yyval) = new TypesList(t->params);
+                    }
+                    exit_scope(false, NULL, NULL);
+                ;}
+    break;
+
+  case 26:
+#line 195 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {verifyType((yyvsp[(3) - (4)]), BOOL); new_scope();;}
+    break;
+
+  case 27:
+#line 195 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {exit_scope(false, NULL, NULL);;}
+    break;
+
+  case 28:
+#line 195 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {new_scope();;}
+    break;
+
+  case 29:
+#line 196 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                    TypesList* t1 = dynamic_cast<TypesList*>((yyvsp[(6) - (10)]));
+                    TypesList* t2 = dynamic_cast<TypesList*>((yyvsp[(10) - (10)]));
+                    if(t1 != NULL || t2 != NULL){
+                        (yyval) = new TypesList();
+                        concatenate_params(dynamic_cast<TypesList*>((yyval))->params, t1, t2);
+                    }
+                    exit_scope(false, NULL, NULL);
+                ;}
+    break;
+
+  case 30:
+#line 206 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {in_while = true;;}
+    break;
+
+  case 31:
+#line 206 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {verifyType((yyvsp[(4) - (5)]), BOOL); new_scope(); in_while = false;;}
+    break;
+
+  case 32:
+#line 207 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                    TypesList* t = dynamic_cast<TypesList*>((yyvsp[(7) - (7)]));
+                    if(t != NULL){
+                        (yyval) = new TypesList(t->params);
+                    }
+                    exit_scope(false, NULL, NULL);
+                ;}
+    break;
+
+  case 34:
+#line 217 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {verifyType((yyvsp[(3) - (4)]), BOOL); new_scope();;}
+    break;
+
+  case 35:
+#line 217 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {exit_scope(false, NULL, NULL);;}
+    break;
+
+  case 36:
+#line 217 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {new_scope();;}
+    break;
+
+  case 37:
+#line 218 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                    TypesList* t1 = dynamic_cast<TypesList*>((yyvsp[(6) - (10)]));
+                    TypesList* t2 = dynamic_cast<TypesList*>((yyvsp[(10) - (10)]));
+                    if(t1 != NULL || t2 != NULL){
+                        (yyval) = new TypesList();
+                        concatenate_params(dynamic_cast<TypesList*>((yyval))->params, t1, t2);
+                    }
+                    exit_scope(false, NULL, NULL);
+                  ;}
+    break;
+
+  case 38:
+#line 228 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {in_while = true;;}
+    break;
+
+  case 39:
+#line 228 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {verifyType((yyvsp[(4) - (5)]), BOOL); new_scope(); in_while = false;;}
+    break;
+
+  case 40:
+#line 229 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                    TypesList* t1 = dynamic_cast<TypesList*>((yyvsp[(7) - (7)]));
+                    if(t1 != NULL){
+                         (yyval) = new TypesList(t1->params);
+                    }
+                    exit_scope(false, NULL, NULL);
+                  ;}
+    break;
+
+  case 41:
+#line 238 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {new_scope();;}
+    break;
+
   case 42:
-#line 159 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 239 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                   TypesList* t = dynamic_cast<TypesList*>((yyvsp[(3) - (4)]));
+                   if(t != NULL){
+                        (yyval) = new TypesList(t->params);
+                   }
+                   exit_scope(false, NULL, NULL);
+                  ;}
+    break;
+
+  case 43:
+#line 248 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {tryAddVariable((yyvsp[(1) - (3)]), (yyvsp[(2) - (3)]), false);;}
+    break;
+
+  case 44:
+#line 251 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {tryAddVariable((yyvsp[(1) - (5)]), (yyvsp[(2) - (5)]), false);
+                   Type* t = static_cast<Type*>((yyvsp[(1) - (5)]));;}
+    break;
+
+  case 47:
+#line 257 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                 int type = static_cast<int>(VOID);
+                 vector<int> v = {type};
+                   (yyval) = new TypesList(v);
+                ;}
+    break;
+
+  case 48:
+#line 263 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                 int type = static_cast<Type*>((yyvsp[(2) - (3)]))->type;
+                 vector<int> v = {type};
+                 (yyval) = new TypesList(v);
+                ;}
+    break;
+
+  case 49:
+#line 269 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                    if (!in_while) {
+                        errorUnexpectedBreak(yylineno);
+                    }
+                    (yyval) = new Type(static_cast<int>(VOID));
+                ;}
+    break;
+
+  case 50:
+#line 276 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
                     if (!in_while) {
                         errorUnexpectedContinue(yylineno);
@@ -1670,41 +1876,70 @@ yyreduce:
                 ;}
     break;
 
-  case 43:
-#line 167 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyFunctionDefined((yyvsp[(1) - (4)])); ;}
+  case 51:
+#line 284 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+                verifyFunctionDefined((yyvsp[(1) - (4)]));
+                (yyval) = new Type(getFunctionReturnType((yyvsp[(1) - (4)])));
+                verifyRightParams((yyvsp[(1) - (4)]), (yyvsp[(3) - (4)]));
+            ;}
     break;
 
-  case 44:
-#line 170 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { verifyFunctionDefined((yyvsp[(1) - (3)])); ;}
+  case 52:
+#line 291 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+		        (yyval) = new Type(getFunctionReturnType((yyvsp[(1) - (3)])));
+		        verifyFunctionDefined((yyvsp[(1) - (3)]));
+		        TypesList* empty = new TypesList();
+                verifyRightParams((yyvsp[(1) - (3)]), empty);
+		    ;}
     break;
 
-  case 47:
-#line 178 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
-    { (yyval) = new Type(NUM); ;}
+  case 53:
+#line 300 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+         int type = static_cast<Type*>((yyvsp[(1) - (1)]))->type;
+         vector<int> v = {type};
+         (yyval) = new TypesList(v);
+        ;}
     break;
 
-  case 48:
-#line 181 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 54:
+#line 306 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    {
+		 int type = static_cast<Type*>((yyvsp[(1) - (3)]))->type;
+         (yyval) = new TypesList({type});
+         vector<int>& v = static_cast<TypesList*>((yyval))->params;
+         vector<int>& exp = static_cast<TypesList*>((yyvsp[(3) - (3)]))->params;
+         v.insert(v.end(), exp.begin(), exp.end());
+		;}
+    break;
+
+  case 55:
+#line 316 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    { (yyval) = new Type(INT); ;}
+    break;
+
+  case 56:
+#line 319 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(BYTE); ;}
     break;
 
-  case 49:
-#line 184 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 57:
+#line 322 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(BOOL); ;}
     break;
 
-  case 50:
-#line 188 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 58:
+#line 326 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(static_cast<Type*>((yyvsp[(2) - (3)]))->type); ;}
     break;
 
-  case 51:
-#line 191 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 59:
+#line 329 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
-        int t1 = verifyTypes((yyvsp[(1) - (3)]), 2, NUM, BYTE);
-        int t2 = verifyTypes((yyvsp[(3) - (3)]), 2, NUM, BYTE);
+        int t1 = verifyTypes((yyvsp[(1) - (3)]), 3, NUM, BYTE, INT);
+        int t2 = verifyTypes((yyvsp[(3) - (3)]), 3, NUM, BYTE, INT);
 
         // Try NUM precision first, retreat to byte if both are BYTE
         int preciseType = t1 == NUM ? NUM : (t2 == NUM ? NUM : BYTE);
@@ -1712,52 +1947,57 @@ yyreduce:
     ;}
     break;
 
-  case 52:
-#line 201 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 60:
+#line 339 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
         verifyVariableDefined((yyvsp[(1) - (1)]));
         (yyval) = new Type(getVariableType((yyvsp[(1) - (1)])));
     ;}
     break;
 
-  case 54:
-#line 208 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 61:
+#line 345 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+    { (yyval) = (yyvsp[(1) - (1)]); ;}
+    break;
+
+  case 62:
+#line 348 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(NUM); ;}
     break;
 
-  case 55:
-#line 211 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 63:
+#line 351 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
 	    verifyByteSize((yyvsp[(1) - (2)]));
 	    (yyval) = new Type(BYTE);
 	;}
     break;
 
-  case 56:
-#line 217 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 64:
+#line 357 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(STRING); ;}
     break;
 
-  case 57:
-#line 220 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 65:
+#line 360 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(BOOL); ;}
     break;
 
-  case 58:
-#line 223 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 66:
+#line 363 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     { (yyval) = new Type(BOOL); ;}
     break;
 
-  case 59:
-#line 226 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 67:
+#line 366 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
     	verifyType((yyvsp[(2) - (2)]), BOOL);
         (yyval) = new Type(BOOL);
     ;}
     break;
 
-  case 60:
-#line 231 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 68:
+#line 371 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
 	    verifyType((yyvsp[(1) - (3)]), BOOL);
 	    verifyType((yyvsp[(3) - (3)]), BOOL);
@@ -1765,8 +2005,8 @@ yyreduce:
     ;}
     break;
 
-  case 61:
-#line 237 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 69:
+#line 377 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
 	    verifyType((yyvsp[(1) - (3)]), BOOL);
      	verifyType((yyvsp[(3) - (3)]), BOOL);
@@ -1774,18 +2014,18 @@ yyreduce:
     ;}
     break;
 
-  case 62:
-#line 243 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+  case 70:
+#line 383 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
     {
-	    verifyTypes((yyvsp[(1) - (3)]), 2, NUM, BYTE);
-	    verifyTypes((yyvsp[(3) - (3)]), 2, NUM, BYTE);
+	    verifyTypes((yyvsp[(1) - (3)]), 3, NUM, BYTE, INT);
+	    verifyTypes((yyvsp[(3) - (3)]), 3, NUM, BYTE, INT);
 	    (yyval) = new Type(BOOL);
 	;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1789 "/Users/miki/Desktop/Compilation/hw3/cmake-build-debug/parser.tab.cpp"
+#line 2029 "/Users/miki/Desktop/Compilation/hw3/cmake-build-debug/parser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1999,6 +2239,6 @@ yyreturn:
 }
 
 
-#line 250 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
+#line 390 "/Users/miki/Desktop/Compilation/hw3/parser.ypp"
 
 

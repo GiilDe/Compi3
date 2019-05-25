@@ -1,0 +1,14 @@
+void checkScope(){
+  int x;
+  {
+    x=5;
+    int y;
+    {
+      x=y;
+      int z;
+    }
+    int z;
+  }
+  int y;
+  int z;
+}

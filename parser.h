@@ -233,9 +233,15 @@ void tryAddVariable(stack_data *type_class, stack_data *id_class, bool func_var)
 
 tokens getVariableType(stack_data* stackData) {
     Id* varId = dynamic_cast<Id*>(stackData);
-    ScopeTable &t = scopes_tables.back();
-    var_data& varData = t[varId->id];
-    return varData.type;
+
+    for (ScopeTable &t : scopes_tables) {
+        if (t.find(varId->id) != t.end()) {
+            var_data& varData = t[varId->id];
+            return varData.type;
+        }
+    }
+    // Error
+    WRAP_ERROR(errorUndef(yylineno, varId->id));
 }
 
 tokens getFunctionReturnType(stack_data* stackData) {

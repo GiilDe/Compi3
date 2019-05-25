@@ -252,10 +252,12 @@ Simple_statement:  LBRACE {new_scope();} Statements RBRACE
                   {tryAddVariable($1, $2, false);}
 
                 | Type ID ASSIGN Exp SC
-                  {tryAddVariable($1, $2, false);
-                   Type* t = static_cast<Type*>($1);}
+                  {tryAddVariable($1, $2, false);}
 
                 | ID ASSIGN Exp SC
+                {
+                   verifyVariableDefined($1);
+                }
                 | Call SC
                 | RETURN SC
                 {

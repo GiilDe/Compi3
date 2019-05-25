@@ -61,25 +61,14 @@ Funcs	:	/*epsilon*/
 		}
 	    ;
 
-FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE {
 
+FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE {
                 current_return_type = dynamic_cast<Type*>($1)->type;
                 addFunctionDeclaration($1, $2, $5);
-
+                $$ = $7;
             } Statements RBRACE
             {
-                TypesList* ret_types = dynamic_cast<TypesList*>($10);
-                int ret_type_from_statement = get_ret_from_statements(ret_types);
-                int ret_type_num = static_cast<Type*>($1)->type;
-                tokens ret_type = static_cast<tokens>(ret_type_num);
-                if(ret_types != NULL && !compare_types(ret_type_num, ret_type_from_statement)){
-                    WRAP_ERROR(errorMismatch(yylineno));
-                }
-
-                int pre_num = static_cast<Preconditions*>($7)->preconditions_num;
                 exit_scope(true, $2, $7);
-
-                $$ = new PrecondList(pre_num);
             }
 	        ;
 
@@ -376,14 +365,16 @@ Exp	:	LPAREN Exp RPAREN
     	verifyType($2, BOOL);
         $$ = new Type(BOOL);
     }
-	|	Exp {verifyType($1, BOOL);} AND Exp
+	|	Exp AND Exp
 	{
-	    verifyType($4, BOOL);
+	    verifyType($1, BOOL);
+	    verifyType($3, BOOL);
         $$ = new Type(BOOL);
     }
-	|	Exp {verifyType($1, BOOL);} OR Exp
+	|	Exp OR Exp
 	{
-     	verifyType($4, BOOL);
+	    verifyType($1, BOOL);
+     	verifyType($3, BOOL);
         $$ = new Type(BOOL);
     }
 	|	Exp RELOP Exp
@@ -393,6 +384,7 @@ Exp	:	LPAREN Exp RPAREN
 	    $$ = new Type(BOOL);
 	}
 	;
+
 
 If_Start: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();}
 

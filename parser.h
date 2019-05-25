@@ -18,6 +18,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <cstdarg>
 
 #define tokens yytokentype
@@ -286,7 +287,8 @@ void verifyType(stack_data *stackData, int t) {
 
 void verifyByteSize(stack_data* stackData) {
     Id* num = dynamic_cast<Id*>(stackData);
-    int value = stoi(num->id);
+    int value;
+    istringstream(num->id) >> value;
     if (num == nullptr || value > 255 || value < 0) {
         WRAP_ERROR(errorByteTooLarge(yylineno, num->id));
     }

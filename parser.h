@@ -44,6 +44,7 @@ extern int yyparse();
  * Line count for lex
  */
 extern int yylineno;
+extern int yydebug;
 
 
 struct var_data {
@@ -315,6 +316,14 @@ void verifyMainFunction() {
     }
 }
 
+void addFunctionDeclaration(stack_data* retType, stack_data *idVarData, stack_data* typesList) {
+    tokens ret_type = (tokens) dynamic_cast<Type*>(retType)->type;
+    Id * idVar = dynamic_cast<Id*>(idVarData);
+    string id = idVar->id;
+    TypesList* func_params = dynamic_cast<TypesList*>(typesList);
+    add_func(func_params->params, ret_type, id);
+}
+
 void yyerror(const char * err) {
     WRAP_ERROR(errorSyn(yylineno));
 }
@@ -357,7 +366,7 @@ int main(){
     initizlize_type_to_string();
 
 //#ifdef YYDEBUG
-//    yydebug = 1;
+    yydebug = 1;
 //#endif
     return yyparse();
 }

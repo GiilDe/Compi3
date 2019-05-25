@@ -1,13 +1,3 @@
-//test
-void printOk(bool isOk) {
-    if (isOk) print("ok");
+void nomain(){
+  int x;
 }
-
-void main()
-{
-    int x = 4;
-    byte y = 100 b;
-    printOk(x>y);
-    int z;
-}
-

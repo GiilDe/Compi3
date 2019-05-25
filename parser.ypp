@@ -62,7 +62,11 @@ Funcs	:	/*epsilon*/
 		}
 	    ;
 
-FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE Statements RBRACE
+FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE {
+
+                addFunctionDeclaration($1, $2, $5);
+
+            } Statements RBRACE
             {
                 TypesList* ret_types = dynamic_cast<TypesList*>($9);
                 if(ret_types != NULL){
@@ -73,12 +77,10 @@ FuncDecl	:	RetType ID LPAREN {new_scope();} Formals RPAREN PreConditions LBRACE 
                 int ret_type_from_statement = get_ret_from_statements(ret_types);
                 int ret_type_num = static_cast<Type*>($1)->type;
                 tokens ret_type = static_cast<tokens>(ret_type_num);
-                if(!compare_types(ret_type_from_statement, ret_type_num)){
+                if(ret_types != NULL && !compare_types(ret_type_from_statement, ret_type_num)){
                     WRAP_ERROR(errorMismatch(yylineno));
                 }
-                string id = static_cast<Id*>($2)->id;
-                TypesList* func_params = static_cast<TypesList*>($5);
-                add_func(func_params->params, ret_type, id);
+
                 int pre_num = static_cast<Preconditions*>($7)->preconditions_num;
                 exit_scope(true, $2, $7);
 
@@ -394,6 +396,6 @@ If_Start: IF LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope();}
 If_Else: If_Start Closed_statement {exit_scope(false, NULL, NULL);} ELSE {new_scope();}
 { $$ = $2; }
 
-While_Start: WHILE LPAREN Exp RPAREN {verifyType($4, BOOL); new_scope(); in_while = true;}
+While_Start: WHILE LPAREN Exp RPAREN {verifyType($3, BOOL); new_scope(); in_while = true;}
 
 %%

@@ -7,14 +7,13 @@
 
 #include <string>
 #include <vector>
-#include <unordered_set>
 #include <algorithm>
 
 using namespace std;
 
 class stack_data {
 public:
-    virtual ~stack_data() = default;
+    virtual ~stack_data(){};
 };
 
 class Id : public stack_data {
